@@ -1,5 +1,5 @@
 export type ExpenseFlowRecordModel = {
-  month: string;
+  date: number;
   name: string;
   value: number;
 };

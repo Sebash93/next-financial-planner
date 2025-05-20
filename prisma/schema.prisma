@@ -29,4 +29,14 @@ model Sheet {
   planId    Int
   plan      Plan          @relation(fields: [planId], references: [id])
   sheetType EnumSheetType
+  Record    Record[]
+}
+
+model Record {
+  id      Int     @id @default(autoincrement())
+  name    String
+  amount  Int
+  date    BigInt?
+  sheetId Int
+  sheet   Sheet   @relation(fields: [sheetId], references: [id])
 }

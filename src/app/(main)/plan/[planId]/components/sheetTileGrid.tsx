@@ -1,5 +1,7 @@
 import Link from "next/link";
 import SheetTile from "./sheetTile";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 export default function SheetTileGrid({ sheets, planId }) {
     return (
@@ -9,6 +11,11 @@ export default function SheetTileGrid({ sheets, planId }) {
                     <SheetTile sheet={sheet} />
                 </Link>
             ))}
+            <Link href={`/plan/${planId}/new-sheet`}>
+                <Button size="lg" variant="outline" className="w-full h-full flex items-center justify-center text-lg">
+                    <Plus /> Crear hoja
+                </Button>
+            </Link>
         </div>
     );
 }

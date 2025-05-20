@@ -1,3 +1,4 @@
+import { useState } from "react"
 import {
     ColumnDef,
     flexRender,
@@ -13,21 +14,36 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { GridCellEdit } from "./grid/grid-cell-edit"
 
 interface SheetGridProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
+    /**
+     * Optional callback when a new row is added.
+     */
+    onRowAdd?: (row: Partial<TData>) => void
 }
 
 export default function SheetGrid<TData, TValue>({
     columns,
-    data
+    data,
+    onRowAdd,
 }: SheetGridProps<TData, TValue>) {
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
     })
+    const [newRowData, setNewRowData] = useState<Partial<TData>>({})
+    const handleAdd = () => {
+        if (onRowAdd) {
+            onRowAdd(newRowData)
+            setNewRowData({})
+        }
+    }
+
     return <Table>
         <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -48,7 +64,7 @@ export default function SheetGrid<TData, TValue>({
             ))}
         </TableHeader>
         <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length > 0 &&
                 table.getRowModel().rows.map((row) => (
                     <TableRow
                         key={row.id}
@@ -60,8 +76,37 @@ export default function SheetGrid<TData, TValue>({
                             </TableCell>
                         ))}
                     </TableRow>
-                ))
-            ) : (
+                ))}
+
+            {onRowAdd && (
+                <TableRow>
+                    {columns.map((column) => {
+                        const key = column.id;
+                        const accessor = column.accessorKey as string;
+                        return (
+                            <TableCell key={"new-" + key}>
+                                {key === "actions" ? (
+                                    <Button onClick={handleAdd}>Agregar</Button>
+                                ) : (
+                                    <GridCellEdit
+                                        column={column}
+                                        accessor={accessor}
+                                        value={(newRowData as any)[accessor] ?? ""}
+                                        onChange={(value) =>
+                                            setNewRowData((prev) => ({
+                                                ...prev,
+                                                [accessor]: value,
+                                            }))
+                                        }
+                                    />
+                                )}
+                            </TableCell>
+                        );
+                    })}
+                </TableRow>
+            )}
+
+            {table.getRowModel().rows.length === 0 && !onRowAdd && (
                 <TableRow>
                     <TableCell colSpan={columns.length} className="h-24 text-center">
                         No results.
