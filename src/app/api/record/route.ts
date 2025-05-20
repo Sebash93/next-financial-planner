@@ -15,12 +15,14 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { name, date, amount, sheetId } = await request.json();
+  const { name, date, amount, tagId, bucketId, sheetId } = await request.json();
   try {
     const newRecord = await prisma.record.create({
       data: {
         name,
         date,
+        tagId,
+        bucketId,
         amount,
         sheetId,
       },
@@ -41,10 +43,10 @@ export async function DELETE(request: Request) {
   try {
     const deletedRecord = await prisma.record.delete({
       where: {
-        id: parseInt(id),
+        id,
       },
     });
-    return NextResponse.json(deletedRecord);
+    return NextResponse.json({});
   } catch (error) {
     if (error instanceof Error) {
       console.log(error.stack);

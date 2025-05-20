@@ -5,7 +5,7 @@ import Link from "next/link"
 export default async function SidebarPlanGroup() {
     const plans = await fetch("http://localhost:3000/api/plan").then((res) => res.json());
     return <SidebarGroup title="Plan">
-        <SidebarGroupLabel>Tu Plan</SidebarGroupLabel>
+        <SidebarGroupLabel>Tus Planes</SidebarGroupLabel>
         <SidebarGroupAction title="Add Project">
             <Link href="/new-plan" >
                 <Plus className="w-4 h-4" /> <span className="sr-only">Add Project</span>

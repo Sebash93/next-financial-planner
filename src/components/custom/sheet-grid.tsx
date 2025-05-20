@@ -16,10 +16,13 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { GridCellEdit } from "./grid/grid-cell-edit"
+import { Bucket, Tag } from "@prisma/client"
 
 interface SheetGridProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
+    tags?: Tag[]
+    buckets?: Bucket[]
     /**
      * Optional callback when a new row is added.
      */
@@ -30,6 +33,8 @@ export default function SheetGrid<TData, TValue>({
     columns,
     data,
     onRowAdd,
+    tags,
+    buckets,
 }: SheetGridProps<TData, TValue>) {
     const table = useReactTable({
         data,
@@ -91,6 +96,8 @@ export default function SheetGrid<TData, TValue>({
                                     <GridCellEdit
                                         column={column}
                                         accessor={accessor}
+                                        tags={tags}
+                                        buckets={buckets}
                                         value={(newRowData as any)[accessor] ?? ""}
                                         onChange={(value) =>
                                             setNewRowData((prev) => ({

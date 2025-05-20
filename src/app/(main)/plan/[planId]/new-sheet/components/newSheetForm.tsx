@@ -26,7 +26,6 @@ export default function NewSheetForm() {
             sheetType: "",
         },
     })
-
     async function onSubmit(values: z.infer<typeof newSheetFormSchema>) {
         console.table(values)
         const response = await fetch('/api/sheet', {
@@ -69,8 +68,9 @@ export default function NewSheetForm() {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <SelectItem value="BUDGET">Presupuesto</SelectItem>
+                                        <SelectItem value="BUDGET">Presupuesto Mensual</SelectItem>
                                         <SelectItem value="EXPENSE_FLOW">Flujo de gastos</SelectItem>
+                                        <SelectItem value="INCOME">Ingresos Mensuales</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />

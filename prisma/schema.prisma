@@ -13,6 +13,7 @@ datasource db {
 enum EnumSheetType {
   BUDGET
   EXPENSE_FLOW
+  INCOME
 }
 
 model Plan {
@@ -30,13 +31,33 @@ model Sheet {
   plan      Plan          @relation(fields: [planId], references: [id])
   sheetType EnumSheetType
   Record    Record[]
+  Tag       Tag[]
+}
+
+model Tag {
+  id      Int      @id @default(autoincrement())
+  name    String
+  sheetId Int
+  sheet   Sheet    @relation(fields: [sheetId], references: [id])
+  color   String
+  Record  Record[]
 }
 
 model Record {
-  id      Int     @id @default(autoincrement())
-  name    String
-  amount  Int
-  date    BigInt?
-  sheetId Int
-  sheet   Sheet   @relation(fields: [sheetId], references: [id])
+  id       Int     @id @default(autoincrement())
+  name     String
+  amount   Int
+  date     BigInt?
+  sheetId  Int
+  sheet    Sheet   @relation(fields: [sheetId], references: [id])
+  bucketId Int?
+  bucket   Bucket? @relation(fields: [bucketId], references: [id])
+  tagId    Int?
+  tag      Tag?    @relation(fields: [tagId], references: [id])
+}
+
+model Bucket {
+  id     Int      @id @default(autoincrement())
+  name   String
+  Record Record[]
 }

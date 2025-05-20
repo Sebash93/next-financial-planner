@@ -6,6 +6,8 @@ import DataDisplay from "@/components/custom/data-display";
 import { numberToCurrency } from "@/utils/currencies";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { accountsTotalsReport } from "@/utils/reports/accounts-totals";
+import { BudgetTags } from "./budgetTags";
+import { Bucket, Record, Tag } from "@prisma/client";
 
 const income = 26314000 + 2700000;
 const records: RecordModel[] = [
@@ -256,11 +258,17 @@ const accountData = accountsTotalsReport(records);
 
 const total = records.reduce((acc, record) => acc + record.value, 0)
 
-export default function BudgetSheet() {
+type BudgetSheetProps = {
+    records: Record[];
+    tags: Tag[];
+    buckets: Bucket[]
+}
+
+export default function BudgetSheet({ records, tags, buckets }: BudgetSheetProps) {
     return <div className="container mx-auto py-10">
         <div className="grid grid-cols-3 gap-4">
             <div className="col-span-2">
-                <BudgetGrid records={records} />
+                <BudgetGrid records={records} tags={tags} buckets={buckets} />
             </div>
             <div className="col-span-1 space-y-4">
                 <DataDisplay title="Total" description="Total del presupuesto" value={numberToCurrency(total)}>
@@ -278,6 +286,7 @@ export default function BudgetSheet() {
                     </div>
                 </DataDisplay>
                 <PieChart title="Categorías" description="Distribución del presupuesto por categorías" data={pieChartData} dataLabel="name" dataKey="percentage" />
+                <BudgetTags tags={tags} />
                 <Card className="w-full">
                     <CardHeader>
                         <CardTitle>Distribución de Categorías</CardTitle>
