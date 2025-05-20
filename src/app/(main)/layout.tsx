@@ -5,10 +5,10 @@ export default function MainLayout({ children }) {
     return (
         <SidebarProvider>
             <AppSidebar />
-            <main>
+            <div className="w-full">
                 <SidebarTrigger />
                 {children}
-            </main>
+            </div>
         </SidebarProvider>
     );
 }

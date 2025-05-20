@@ -1,6 +1,6 @@
 export default function Page({ title, children }) {
-    return <main className="p-8">
-        <header className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+    return <main className="p-8 w-full">
+        <header className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
             {title}
         </header>
         <section className="mt-8">

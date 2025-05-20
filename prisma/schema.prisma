@@ -10,9 +10,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum EnumSheetType {
+  BUDGET
+  EXPENSE_FLOW
+}
+
 model Plan {
-  id          Int    @id @default(autoincrement())
-  name        String @unique
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
   initialDate Int
   endDate     Int
+  Sheet       Sheet[]
+}
+
+model Sheet {
+  id        Int           @id @default(autoincrement())
+  name      String        @unique
+  planId    Int
+  plan      Plan          @relation(fields: [planId], references: [id])
+  sheetType EnumSheetType
 }

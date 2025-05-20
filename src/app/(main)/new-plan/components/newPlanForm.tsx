@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import MonthYearPicker from "@/components/custom/month-year-picker";
 import { getStartOfCurrentMonth } from "@/utils/dates";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function NewPlanForm() {
     const form = useForm<z.infer<typeof newPlanFormSchema>>({
@@ -33,49 +34,58 @@ export default function NewPlanForm() {
     }
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Nombre del plan</FormLabel>
-                            <FormControl>
-                                <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="initialDate"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Fecha de Inicio</FormLabel>
-                            <FormControl>
-                                <MonthYearPicker {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="endDate"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Fecha de Final</FormLabel>
-                            <FormControl>
-                                <MonthYearPicker {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <Button type="submit">Crear</Button>
-            </form>
-        </Form>
+        <Card>
+            <CardHeader>
+                <CardTitle>Crea un nuevo plan</CardTitle>
+            </CardHeader>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} >
+                    <CardContent className="space-y-8">
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Nombre del plan</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="initialDate"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Fecha de Inicio</FormLabel>
+                                    <FormControl>
+                                        <MonthYearPicker {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="endDate"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Fecha de Final</FormLabel>
+                                    <FormControl>
+                                        <MonthYearPicker {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                    <CardFooter>
+                        <Button type="submit">Crear</Button>
+                    </CardFooter>
+                </form>
+            </Form>
+        </Card>
     )
 }
