@@ -54,6 +54,7 @@ export const GridCellEdit = <TData, TValue>({ column, value, tags, buckets, onCh
     }
     if (column.id === "tag" && tagsOptions) {
         return <InputSelect
+            value={value as string}
             defaultValue={value as string}
             options={tagsOptions}
             onChange={handleChange}
@@ -63,6 +64,7 @@ export const GridCellEdit = <TData, TValue>({ column, value, tags, buckets, onCh
     }
     if (column.id === "bucket" && bucketOptions) {
         return <InputSelect
+            value={value as string}
             defaultValue={value as string}
             options={bucketOptions}
             onChange={handleChange}

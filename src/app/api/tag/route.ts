@@ -32,3 +32,20 @@ export async function POST(request: Request) {
     throw new Error("Failed to record your interaction. Please try again.");
   }
 }
+
+export async function DELETE(request: Request) {
+  const { tagId } = await request.json();
+  try {
+    const deletedTag = await prisma.tag.delete({
+      where: {
+        id: tagId,
+      },
+    });
+    return NextResponse.json(deletedTag);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.stack);
+    }
+    throw new Error("Failed to record your interaction. Please try again.");
+  }
+}

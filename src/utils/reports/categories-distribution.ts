@@ -1,18 +1,18 @@
-import { RecordModel } from "@/models/record";
+import { Record, Tag } from "@prisma/client";
 
 interface CategoryDistribution {
-  name: string;
+  id: number;
   total: number;
   percentage: number;
 }
 
-export const categoriesDistributionReport = (records: RecordModel[]) => {
+export const categoriesDistributionReport = (records: Record[], tags: Tag[]) => {
   const categories = records.reduce((acc, record) => {
-    const category = acc.find((category) => category.name === record.category);
+    const category = acc.find((category) => category.id === record.tagId);
     if (category) {
-      category.total += record.value;
-    } else {
-      acc.push({ name: record.category, total: record.value });
+      category.total += record.amount;
+    } else if (record.tagId) {
+      acc.push({ id: record.tagId, total: record.amount });
     }
     return acc;
   }, [] as Omit<CategoryDistribution, "percentage">[]);
@@ -20,7 +20,8 @@ export const categoriesDistributionReport = (records: RecordModel[]) => {
   const total = categories.reduce((acc, category) => acc + category.total, 0);
 
   return categories.map((category) => ({
-    name: category.name,
+    id: category.id,
+    name: tags.find((tag) => tag.id === category.id)?.name || "Sin categoría",
     total: category.total,
     percentage: (category.total / total) * 100,
   }));

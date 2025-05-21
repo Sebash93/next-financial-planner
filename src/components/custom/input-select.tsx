@@ -10,10 +10,11 @@ type InputSelectProps = {
     onChange: (value: string) => void,
     defaultValue: string,
     placeholder: string,
+    value?: string,
 };
 
-export const InputSelect = ({ options, onChange, defaultValue, placeholder }: InputSelectProps) => {
-    return <Select onValueChange={onChange} defaultValue={defaultValue}>
+export const InputSelect = ({ options, onChange, defaultValue, placeholder, value }: InputSelectProps) => {
+    return <Select onValueChange={onChange} defaultValue={defaultValue} value={value}>
         <SelectTrigger className="w-[180px]">
             <SelectValue placeholder={placeholder} />
         </SelectTrigger>

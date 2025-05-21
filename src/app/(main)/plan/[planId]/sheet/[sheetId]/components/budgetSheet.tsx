@@ -1,18 +1,14 @@
 "use client"
 
 import BudgetGrid from "./budgetGrid";
-import PieChart from "@/components/custom/charts/pie-chart";
-import { categoriesDistributionReport } from "@/utils/reports/categories-distribution";
 import { RecordModel } from "@/models/record";
-import DataDisplay from "@/components/custom/data-display";
-import { numberToCurrency } from "@/utils/currencies";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { accountsTotalsReport } from "@/utils/reports/accounts-totals";
 import { BudgetTags } from "./budgetTags";
-import { Bucket, Record, Tag } from "@prisma/client";
 import { useTagQuery } from "@/queries/tag.queries";
 import { useBucketQuery } from "@/queries/bucket.queries";
 import { useRecordQuery } from "@/queries/record.queries";
+import { OverAllTotals } from "@/components/custom/charts/overall-totals";
+import { BudgetTagDistribution } from "@/components/custom/charts/budget-tag-distribution";
+import { BudgetBucketDistribution } from "@/components/custom/charts/budget-bucket-distribution";
 
 const income = 26314000 + 2700000;
 const records: RecordModel[] = [
@@ -258,11 +254,6 @@ const records: RecordModel[] = [
     }
 ];
 
-const pieChartData = categoriesDistributionReport(records);
-const accountData = accountsTotalsReport(records);
-
-const total = records.reduce((acc, record) => acc + record.value, 0)
-
 type BudgetSheetProps = {
     sheetId: string;
 }
@@ -281,50 +272,10 @@ export default function BudgetSheet({ sheetId }: BudgetSheetProps) {
                     <BudgetGrid sheetId={sheetId} records={records} tags={tags} buckets={buckets} />}
             </div>
             <div className="col-span-1 space-y-4">
-                <DataDisplay title="Total" description="Total del presupuesto" value={numberToCurrency(total)}>
-                    <div className="flex w-full items-start gap-2 text-sm">
-                        <div className="grid gap-2">
-                            <div className="flex items-center gap-2 font-medium leading-none">
-                                Resultado del ejercicio {
-                                    numberToCurrency(income - total)
-                                }
-                            </div>
-                            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                                Ingresos de {numberToCurrency(income)}
-                            </div>
-                        </div>
-                    </div>
-                </DataDisplay>
-                <PieChart title="Categorías" description="Distribución del presupuesto por categorías" data={pieChartData} dataLabel="name" dataKey="percentage" />
-                <BudgetTags tags={tags} sheetId={sheetId} />
-                <Card className="w-full">
-                    <CardHeader>
-                        <CardTitle>Distribución de Categorías</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid gap-2">
-                            {pieChartData.map((category) => (
-                                <div key={category.name} className="flex items-center gap-2 font-medium leading-none">
-                                    {category.name}: {numberToCurrency(category.total)}
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="w-full">
-                    <CardHeader>
-                        <CardTitle>Distribución de Cuentas</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid gap-2">
-                            {accountData.map((account) => (
-                                <div key={account.name} className="flex items-center gap-2 font-medium leading-none">
-                                    {account.name}: {numberToCurrency(account.total)}
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
+                <OverAllTotals />
+                {tags && records && <BudgetTagDistribution records={records} tags={tags} />}
+                {tags && records && <BudgetTags records={records} tags={tags} sheetId={sheetId} />}
+                {buckets && records && <BudgetBucketDistribution records={records} buckets={buckets} />}
             </div>
         </div>
     </div>

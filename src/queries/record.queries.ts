@@ -8,7 +8,7 @@ import {
 import { Record as RecordModel } from "@prisma/client";
 import { ApiError } from "./api";
 
-const RECORD_QUERY_KEY = "record";
+export const RECORD_QUERY_KEY = "record";
 const RECORD_QUERY_URL = "/api/record";
 
 /**

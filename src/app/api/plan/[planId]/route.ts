@@ -9,7 +9,6 @@ export async function GET(request: Request, { params }) {
         id: parseInt(planId),
       },
     });
-    console.log({ plan });
     return NextResponse.json(plan);
   } catch (error) {
     if (error instanceof Error) {
