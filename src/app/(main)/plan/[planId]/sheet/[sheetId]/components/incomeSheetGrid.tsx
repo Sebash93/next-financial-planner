@@ -5,12 +5,12 @@ import SheetGrid from "@/components/custom/sheet-grid"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { newIcomeRecordSchema } from "@/form-schemas/new-income-record.schema"
-import { useDeleteRecordQuery, useMutateRecordQuery } from "@/queries/record.queries"
+import { useFormCallbacks } from "@/hooks/use-form-callbacks"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Record } from "@prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
 import { Trash2 } from "lucide-react"
-import { useParams } from "next/navigation"
+import { useCallback, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -19,18 +19,25 @@ type IncomeSheetGridProps = {
     sheetId: string
 }
 
+const defaultFormValues = {
+    name: "",
+    amount: 0,
+}
+
 export const IncomeSheetGrid = ({ records, sheetId }: IncomeSheetGridProps) => {
-    const { mutate } = useMutateRecordQuery()
-    const { mutate: mutateDelete } = useDeleteRecordQuery()
     const form = useForm<z.infer<typeof newIcomeRecordSchema>>({
         resolver: zodResolver(newIcomeRecordSchema),
-        defaultValues: {
-            name: "",
-            amount: 0,
-        },
+        defaultValues: defaultFormValues,
     })
+    const { onSubmit, onSubmitInvalid, onDelete } = useFormCallbacks<z.infer<typeof newIcomeRecordSchema>, Record>({ form })
 
-    const columns: ColumnDef<Record>[] = [
+    const handleRowAdd = useCallback((row: Partial<Record>) => {
+        if (row.name) form.setValue("name", row.name)
+        if (row.amount) form.setValue("amount", row.amount)
+        form.handleSubmit((data: z.infer<typeof newIcomeRecordSchema>) => onSubmit({ ...data, sheetId: parseInt(sheetId) }), onSubmitInvalid)()
+    }, [form, onSubmit, sheetId, onSubmitInvalid])
+
+    const columns: ColumnDef<Record>[] = useMemo(() => ([
         {
             id: "name",
             accessorKey: "name",
@@ -46,30 +53,13 @@ export const IncomeSheetGrid = ({ records, sheetId }: IncomeSheetGridProps) => {
             id: "actions",
             header: "",
             cell: ({ row }) => (
-                <Button variant="ghost" onClick={() => console.log("DELETE", row.original)}>
+                <Button variant="ghost" onClick={() => onDelete(row.original.id)}>
                     <Trash2 />
                 </Button>
             ),
         },
-    ]
+    ]), [onDelete])
 
-    const handleRowAdd = (row) => {
-        form.setValue("name", row.name)
-        form.setValue("amount", parseInt(row.amount))
-        form.handleSubmit(async (values) => {
-            console.log('SUBMITTING', values)
-            try {
-                mutate({
-                    ...values,
-                    sheetId: parseInt(sheetId as string)
-                })
-            } catch (error) {
-                console.error("Error submitting form", error)
-            }
-        }, (errors) => {
-            console.log('FORM ERROR', errors)
-        })()
-    }
     return <Card>
         <CardHeader>
             <CardTitle>Ingresos Mensuales</CardTitle>

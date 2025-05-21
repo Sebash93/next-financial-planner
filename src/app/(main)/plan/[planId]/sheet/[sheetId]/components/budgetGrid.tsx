@@ -6,7 +6,7 @@ import SheetGrid from "@/components/custom/sheet-grid";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { newBudgetRecordFormSchema } from "@/form-schemas/new-budget-record-form.schema";
-import { useDeleteRecordQuery, useMutateRecordQuery } from "@/queries/record.queries";
+import { useFormCallbacks } from "@/hooks/use-form-callbacks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Bucket, Record as RecordModel, Tag } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
@@ -14,6 +14,15 @@ import { Trash2 } from "lucide-react";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+const defaultFormValues = {
+    name: "",
+    amount: 0,
+    tagId: undefined,
+    bucketId: undefined,
+}
+
+type FormValues = z.infer<typeof newBudgetRecordFormSchema>
 
 type BudgetGridProps = {
     sheetId: string;
@@ -23,18 +32,6 @@ type BudgetGridProps = {
 }
 
 export default function BudgetGrid({ records, tags, buckets, sheetId }: BudgetGridProps) {
-    const { mutate } = useMutateRecordQuery()
-    const { mutate: mutateDelete } = useDeleteRecordQuery()
-    const form = useForm<z.infer<typeof newBudgetRecordFormSchema>>({
-        resolver: zodResolver(newBudgetRecordFormSchema),
-        defaultValues: {
-            name: "",
-            amount: 0,
-            tagId: undefined,
-            bucketId: undefined,
-        },
-    })
-
     const tagsDictionary = useMemo(() => tags.reduce((acc, tag) => {
         acc[tag.id] = tag.name
         return acc
@@ -45,32 +42,18 @@ export default function BudgetGrid({ records, tags, buckets, sheetId }: BudgetGr
         return acc
     }, {} as Record<string, string>), [buckets]);
 
+    const form = useForm<FormValues>({
+        resolver: zodResolver(newBudgetRecordFormSchema),
+        defaultValues: defaultFormValues,
+    })
+    const { onSubmit, onSubmitInvalid, onDelete } = useFormCallbacks<FormValues, RecordModel>({ form })
 
-    const handleRowDelete = async (row) => {
-        try {
-            mutateDelete(parseInt(row.original.id))
-        } catch (error) {
-            console.error("Error deleting record", error)
-        }
-    }
-
-    const handleRowAdd = (row) => {
-        console.log('ROW ADD', row)
-        form.setValue("name", row.name)
-        form.setValue("bucketId", row.bucketId)
-        form.setValue("tagId", row.tagId)
-        form.setValue("amount", row.amount)
-
-        form.handleSubmit(async (values) => {
-            console.log('SUBMITTING', values)
-            try {
-                mutate({ ...values, sheetId: parseInt(sheetId as string) })
-            } catch (error) {
-                console.error("Error submitting form", error)
-            }
-        }, (errors) => {
-            console.log('FORM ERROR', errors)
-        })()
+    const handleRowAdd = (row: Partial<RecordModel>) => {
+        if (row.name) form.setValue("name", row.name)
+        if (row.amount) form.setValue("amount", row.amount)
+        if (row.tagId) form.setValue("tagId", row.tagId)
+        if (row.bucketId) form.setValue("bucketId", row.bucketId)
+        form.handleSubmit((data: FormValues) => onSubmit({ ...data, sheetId: parseInt(sheetId) }), onSubmitInvalid)()
     }
 
     const columns: ColumnDef<RecordModel>[] = [
@@ -108,7 +91,7 @@ export default function BudgetGrid({ records, tags, buckets, sheetId }: BudgetGr
             accessorKey: "actions",
             header: "",
             cell: ({ row }) => {
-                return <Button variant="ghost" className="w-4 h-4 p-2" onClick={() => handleRowDelete(row)} >
+                return <Button variant="ghost" className="w-4 h-4 p-2" onClick={() => onDelete(row.original.id)} >
                     <Trash2 />
                 </Button>
             }

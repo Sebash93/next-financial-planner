@@ -5,8 +5,7 @@ import SheetGrid from "@/components/custom/sheet-grid";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { newExpenseFlowRecordSchema } from "@/form-schemas/new-expense-flow-record.schema";
-import { ExpenseFlowRecordModel } from "@/models/expenseFlowRecord";
-import { useDeleteRecordQuery, useMutateRecordQuery } from "@/queries/record.queries";
+import { useFormCallbacks } from "@/hooks/use-form-callbacks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Record } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
@@ -14,53 +13,38 @@ import { Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+const defaultFormValues = {
+    name: "",
+    date: 0,
+    amount: 0,
+}
+type FormValues = z.infer<typeof newExpenseFlowRecordSchema>
+
 type ExpenseFlowSheetGridProps = {
     records?: Record[]
     sheetId: string
 }
 
 export default function ExpenseFlowSheetGrid({ records, sheetId }: ExpenseFlowSheetGridProps) {
-    const { mutate } = useMutateRecordQuery()
-    const { mutate: mutateDelete } = useDeleteRecordQuery()
-    const form = useForm<z.infer<typeof newExpenseFlowRecordSchema>>({
+    const form = useForm<FormValues>({
         resolver: zodResolver(newExpenseFlowRecordSchema),
-        defaultValues: {
-            name: "",
-            date: 0,
-            amount: 0,
-        },
+        defaultValues: defaultFormValues,
     })
+    const { onSubmit, onSubmitInvalid, onDelete } = useFormCallbacks<FormValues, Record>({ form })
 
-    const handleRowDelete = async (row) => {
-        console.log('DELETE', row)
-        try {
-            mutateDelete(parseInt(row.id))
-        } catch (error) {
-            console.error("Error deleting record", error)
-        }
+    const handleRowAdd = (row: Partial<Record>) => {
+        if (row.name) form.setValue("name", row.name)
+        if (row.date) form.setValue("date", row.date)
+        if (row.amount) form.setValue("amount", row.amount)
+        form.handleSubmit((data: FormValues) => onSubmit({
+            ...data,
+            date: BigInt(data.date),
+            sheetId: parseInt(sheetId),
+        }), onSubmitInvalid)()
+
     }
 
-    const handleRowAdd = (row) => {
-        form.setValue("name", row.name)
-        form.setValue("date", parseInt(row.date))
-        form.setValue("amount", parseInt(row.amount))
-        form.handleSubmit(async (values) => {
-            console.log('SUBMITTING', values)
-            try {
-                mutate({
-                    ...values,
-                    date: BigInt(values.date),
-                    sheetId: parseInt(sheetId as string)
-                })
-            } catch (error) {
-                console.error("Error submitting form", error)
-            }
-        }, (errors) => {
-            console.log('FORM ERROR', errors)
-        })()
-    }
-
-    const columns: ColumnDef<ExpenseFlowRecordModel>[] = [
+    const columns: ColumnDef<Record>[] = [
         {
             id: "date",
             accessorKey: "date",
@@ -84,7 +68,7 @@ export default function ExpenseFlowSheetGrid({ records, sheetId }: ExpenseFlowSh
             header: "",
             cell: ({ row }) => {
                 console.log(row)
-                return <Button variant="ghost" className="w-4 h-4 p-2" onClick={() => handleRowDelete(row)} >
+                return <Button variant="ghost" className="w-4 h-4 p-2" onClick={() => onDelete(row.original.id)} >
                     <Trash2 />
                 </Button>
             }
