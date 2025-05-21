@@ -1,29 +1,25 @@
-import AlertEmpty from "@/components/custom/alert-empty";
 import Page from "@/components/custom/page";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import Link from "next/link";
-import SheetTileGrid from "./components/sheetTileGrid";
-import { Sheet } from "@prisma/client";
+import { SheetTileGrid } from "./components/sheetTileGrid";
+import { PlanTitle } from "./components/planTitle";
+import { ReactQueryProvider } from "@/providers/react-query-provider";
+import { PageContent } from "@/components/custom/page-content";
 
-export default async function PlanIdPage({ params }) {
-    const { planId } = await params;
-    const plan = await fetch(`http://localhost:3000/api/plan/${planId}`).then((res) => res.json());
-    const sheets: Sheet[] = await fetch(`http://localhost:3000/api/sheet?planId=${planId}`).then((res) => res.json());
+type PlanIdPageProps = {
+    params: {
+        planId: string;
+    };
+}
+
+export default async function PlanIdPage({ params }: PlanIdPageProps) {
+    const { planId } = params;
     return (
-        <Page title={plan.name}>
-            {sheets?.length ?
-                <SheetTileGrid sheets={sheets} planId={planId} /> :
-                <AlertEmpty title="Tu plan no tiene hojas">
-                    <div className="flex flex-col items-center">
-                        Parece que aún no has creado tu primera hoja en este plan.
-                        <Link href={`/plan/${planId}/new-sheet`} >
-                            <Button className="mt-4" >
-                                <Plus /> Crear hoja
-                            </Button>
-                        </Link>
-                    </div>
-                </AlertEmpty>}
+        <Page>
+            <ReactQueryProvider>
+                <PlanTitle planId={planId} />
+                <PageContent>
+                    <SheetTileGrid planId={planId} />
+                </PageContent>
+            </ReactQueryProvider>
         </Page>
     );
 }

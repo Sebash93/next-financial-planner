@@ -1,3 +1,5 @@
+"use client"
+
 import BudgetGrid from "./budgetGrid";
 import PieChart from "@/components/custom/charts/pie-chart";
 import { categoriesDistributionReport } from "@/utils/reports/categories-distribution";
@@ -8,6 +10,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { accountsTotalsReport } from "@/utils/reports/accounts-totals";
 import { BudgetTags } from "./budgetTags";
 import { Bucket, Record, Tag } from "@prisma/client";
+import { useTagQuery } from "@/queries/tag.queries";
+import { useBucketQuery } from "@/queries/bucket.queries";
+import { useRecordQuery } from "@/queries/record.queries";
 
 const income = 26314000 + 2700000;
 const records: RecordModel[] = [
@@ -259,16 +264,21 @@ const accountData = accountsTotalsReport(records);
 const total = records.reduce((acc, record) => acc + record.value, 0)
 
 type BudgetSheetProps = {
-    records: Record[];
-    tags: Tag[];
-    buckets: Bucket[]
+    sheetId: string;
 }
 
-export default function BudgetSheet({ records, tags, buckets }: BudgetSheetProps) {
+export default function BudgetSheet({ sheetId }: BudgetSheetProps) {
+    const { data: tags, isLoading: isLoadingTags } = useTagQuery(sheetId);
+    const { data: buckets, isLoading: isLoadingBuckets, } = useBucketQuery(sheetId);
+    const { data: records, isLoading: isLoadingRecords } = useRecordQuery(sheetId);
+
+    const allDataLoaded = tags && buckets && records;
+
     return <div className="container mx-auto py-10">
         <div className="grid grid-cols-3 gap-4">
             <div className="col-span-2">
-                <BudgetGrid records={records} tags={tags} buckets={buckets} />
+                {allDataLoaded &&
+                    <BudgetGrid sheetId={sheetId} records={records} tags={tags} buckets={buckets} />}
             </div>
             <div className="col-span-1 space-y-4">
                 <DataDisplay title="Total" description="Total del presupuesto" value={numberToCurrency(total)}>
@@ -286,7 +296,7 @@ export default function BudgetSheet({ records, tags, buckets }: BudgetSheetProps
                     </div>
                 </DataDisplay>
                 <PieChart title="Categorías" description="Distribución del presupuesto por categorías" data={pieChartData} dataLabel="name" dataKey="percentage" />
-                <BudgetTags tags={tags} />
+                <BudgetTags tags={tags} sheetId={sheetId} />
                 <Card className="w-full">
                     <CardHeader>
                         <CardTitle>Distribución de Categorías</CardTitle>

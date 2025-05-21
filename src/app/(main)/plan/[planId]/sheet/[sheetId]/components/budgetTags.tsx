@@ -4,19 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { newTagFormSchema } from "@/form-schemas/new-tag-form.schema"
+import { useMutateTagQuery } from "@/queries/tag.queries"
 import { getNextTagColor } from "@/utils/colors"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Tag } from "@prisma/client"
-import { useParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 type BudgetTagsProps = {
     tags?: Tag[]
+    sheetId: string
 }
 
-export const BudgetTags = ({ tags }: BudgetTagsProps) => {
-    const { sheetId } = useParams()
+export const BudgetTags = ({ tags, sheetId }: BudgetTagsProps) => {
+    const { mutate } = useMutateTagQuery()
     const form = useForm<z.infer<typeof newTagFormSchema>>({
         resolver: zodResolver(newTagFormSchema),
         defaultValues: {
@@ -28,13 +29,10 @@ export const BudgetTags = ({ tags }: BudgetTagsProps) => {
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         form.setValue("color", getNextTagColor(tags?.map(tag => tag.color)))
         form.handleSubmit(async (values: z.infer<typeof newTagFormSchema>) => {
-            console.log("SUBMITTING")
-            const response = await fetch('/api/tag', {
-                method: 'POST',
-                body: JSON.stringify({ ...values, sheetId: parseInt(sheetId as string) }),
+            mutate({
+                ...values,
+                sheetId: parseInt(sheetId as string)
             })
-            const data = await response.json()
-            console.log(data)
         })(e)
     }
 

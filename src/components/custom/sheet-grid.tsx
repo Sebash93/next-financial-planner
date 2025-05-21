@@ -23,9 +23,6 @@ interface SheetGridProps<TData, TValue> {
     data: TData[]
     tags?: Tag[]
     buckets?: Bucket[]
-    /**
-     * Optional callback when a new row is added.
-     */
     onRowAdd?: (row: Partial<TData>) => void
 }
 

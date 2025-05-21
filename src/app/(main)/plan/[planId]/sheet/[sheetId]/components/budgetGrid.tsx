@@ -6,23 +6,25 @@ import SheetGrid from "@/components/custom/sheet-grid";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { newBudgetRecordFormSchema } from "@/form-schemas/new-budget-record-form.schema";
+import { useDeleteRecordQuery, useMutateRecordQuery } from "@/queries/record.queries";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bucket, Record as RecordEntity, Tag } from "@prisma/client";
+import { Bucket, Record as RecordModel, Tag } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Trash2 } from "lucide-react";
-import { useParams } from "next/navigation";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 type BudgetGridProps = {
-    records: RecordEntity[],
+    sheetId: string;
+    records: RecordModel[],
     tags: Tag[]
     buckets: Bucket[]
 }
 
-export default function BudgetGrid({ records, tags, buckets }: BudgetGridProps) {
-    const { sheetId } = useParams()
+export default function BudgetGrid({ records, tags, buckets, sheetId }: BudgetGridProps) {
+    const { mutate } = useMutateRecordQuery()
+    const { mutate: mutateDelete } = useDeleteRecordQuery()
     const form = useForm<z.infer<typeof newBudgetRecordFormSchema>>({
         resolver: zodResolver(newBudgetRecordFormSchema),
         defaultValues: {
@@ -32,10 +34,12 @@ export default function BudgetGrid({ records, tags, buckets }: BudgetGridProps) 
             bucketId: undefined,
         },
     })
+
     const tagsDictionary = useMemo(() => tags.reduce((acc, tag) => {
         acc[tag.id] = tag.name
         return acc
     }, {} as Record<string, string>), [tags]);
+
     const bucketsDictionary = useMemo(() => buckets.reduce((acc, bucket) => {
         acc[bucket.id] = bucket.name
         return acc
@@ -43,14 +47,8 @@ export default function BudgetGrid({ records, tags, buckets }: BudgetGridProps) 
 
 
     const handleRowDelete = async (row) => {
-        console.log('DELETE', row)
         try {
-            const response = await fetch('/api/record', {
-                method: 'DELETE',
-                body: JSON.stringify({ id: parseInt(row.original.id) }),
-            })
-            const data = await response.json()
-            console.log(data)
+            mutateDelete(parseInt(row.original.id))
         } catch (error) {
             console.error("Error deleting record", error)
         }
@@ -66,12 +64,7 @@ export default function BudgetGrid({ records, tags, buckets }: BudgetGridProps) 
         form.handleSubmit(async (values) => {
             console.log('SUBMITTING', values)
             try {
-                const response = await fetch('/api/record', {
-                    method: 'POST',
-                    body: JSON.stringify({ ...values, sheetId: parseInt(sheetId as string) }),
-                })
-                const data = await response.json()
-                console.log(data)
+                mutate({ ...values, sheetId: parseInt(sheetId as string) })
             } catch (error) {
                 console.error("Error submitting form", error)
             }
@@ -80,7 +73,7 @@ export default function BudgetGrid({ records, tags, buckets }: BudgetGridProps) 
         })()
     }
 
-    const columns: ColumnDef<RecordEntity>[] = [
+    const columns: ColumnDef<RecordModel>[] = [
         {
             id: "name",
             accessorKey: "name",

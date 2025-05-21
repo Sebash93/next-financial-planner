@@ -10,8 +10,11 @@ import { Button } from "@/components/ui/button";
 import MonthYearPicker from "@/components/custom/month-year-picker";
 import { getStartOfCurrentMonth } from "@/utils/dates";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { ReactQueryProvider } from "@/providers/react-query-provider";
+import { useMutatePlanQuery } from "@/queries/plan.queries";
 
-export default function NewPlanForm() {
+const NewPlanForm = () => {
+    const { mutate } = useMutatePlanQuery()
     const form = useForm<z.infer<typeof newPlanFormSchema>>({
         resolver: zodResolver(newPlanFormSchema),
         defaultValues: {
@@ -22,15 +25,9 @@ export default function NewPlanForm() {
     })
 
     async function onSubmit(values: z.infer<typeof newPlanFormSchema>) {
-        console.table(values)
         const initialDate = values.initialDate / 1000
         const endDate = values.endDate / 1000
-        const response = await fetch('/api/plan', {
-            method: 'POST',
-            body: JSON.stringify({ ...values, initialDate, endDate }),
-        })
-        const data = await response.json()
-        console.log(data)
+        mutate({ ...values, initialDate, endDate })
     }
 
     return (
@@ -87,5 +84,13 @@ export default function NewPlanForm() {
                 </form>
             </Form>
         </Card>
+    )
+}
+
+export const NewPlanFormWithProvider = () => {
+    return (
+        <ReactQueryProvider>
+            <NewPlanForm />
+        </ReactQueryProvider>
     )
 }

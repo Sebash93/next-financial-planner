@@ -5,6 +5,7 @@ import SheetGrid from "@/components/custom/sheet-grid"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { newIcomeRecordSchema } from "@/form-schemas/new-income-record.schema"
+import { useDeleteRecordQuery, useMutateRecordQuery } from "@/queries/record.queries"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Record } from "@prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
@@ -15,10 +16,12 @@ import { z } from "zod"
 
 type IncomeSheetGridProps = {
     records: Record[]
+    sheetId: string
 }
 
-export const IncomeSheetGrid = ({ records }: IncomeSheetGridProps) => {
-    const { sheetId } = useParams()
+export const IncomeSheetGrid = ({ records, sheetId }: IncomeSheetGridProps) => {
+    const { mutate } = useMutateRecordQuery()
+    const { mutate: mutateDelete } = useDeleteRecordQuery()
     const form = useForm<z.infer<typeof newIcomeRecordSchema>>({
         resolver: zodResolver(newIcomeRecordSchema),
         defaultValues: {
@@ -56,12 +59,10 @@ export const IncomeSheetGrid = ({ records }: IncomeSheetGridProps) => {
         form.handleSubmit(async (values) => {
             console.log('SUBMITTING', values)
             try {
-                const response = await fetch('/api/record', {
-                    method: 'POST',
-                    body: JSON.stringify({ ...values, sheetId: parseInt(sheetId as string) }),
+                mutate({
+                    ...values,
+                    sheetId: parseInt(sheetId as string)
                 })
-                const data = await response.json()
-                console.log(data)
             } catch (error) {
                 console.error("Error submitting form", error)
             }

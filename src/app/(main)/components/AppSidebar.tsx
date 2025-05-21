@@ -1,5 +1,6 @@
+
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
-import SidebarPlanGroup from "./SidebarPlanGroup"
+import { SidebarPlanGroupWithProvider } from "./SidebarPlanGroup"
 import { Wallet } from "lucide-react"
 import Link from "next/link"
 
@@ -7,7 +8,7 @@ export function AppSidebar() {
     return (
         <Sidebar>
             <SidebarContent>
-                <SidebarPlanGroup />
+                <SidebarPlanGroupWithProvider />
                 <SidebarGroup>
                     <SidebarGroupLabel>Configuración</SidebarGroupLabel>
                     <SidebarGroupContent>

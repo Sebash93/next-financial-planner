@@ -6,15 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { newExpenseFlowRecordSchema } from "@/form-schemas/new-expense-flow-record.schema";
 import { ExpenseFlowRecordModel } from "@/models/expenseFlowRecord";
+import { useDeleteRecordQuery, useMutateRecordQuery } from "@/queries/record.queries";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Record } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Trash2 } from "lucide-react";
-import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-export default function ExpenseFlowSheetGrid({ records }) {
-    const { sheetId } = useParams()
+type ExpenseFlowSheetGridProps = {
+    records?: Record[]
+    sheetId: string
+}
+
+export default function ExpenseFlowSheetGrid({ records, sheetId }: ExpenseFlowSheetGridProps) {
+    const { mutate } = useMutateRecordQuery()
+    const { mutate: mutateDelete } = useDeleteRecordQuery()
     const form = useForm<z.infer<typeof newExpenseFlowRecordSchema>>({
         resolver: zodResolver(newExpenseFlowRecordSchema),
         defaultValues: {
@@ -27,12 +34,7 @@ export default function ExpenseFlowSheetGrid({ records }) {
     const handleRowDelete = async (row) => {
         console.log('DELETE', row)
         try {
-            const response = await fetch('/api/record', {
-                method: 'DELETE',
-                body: JSON.stringify({ id: row.id }),
-            })
-            const data = await response.json()
-            console.log(data)
+            mutateDelete(parseInt(row.id))
         } catch (error) {
             console.error("Error deleting record", error)
         }
@@ -45,12 +47,11 @@ export default function ExpenseFlowSheetGrid({ records }) {
         form.handleSubmit(async (values) => {
             console.log('SUBMITTING', values)
             try {
-                const response = await fetch('/api/record', {
-                    method: 'POST',
-                    body: JSON.stringify({ ...values, sheetId: parseInt(sheetId as string) }),
+                mutate({
+                    ...values,
+                    date: BigInt(values.date),
+                    sheetId: parseInt(sheetId as string)
                 })
-                const data = await response.json()
-                console.log(data)
             } catch (error) {
                 console.error("Error submitting form", error)
             }

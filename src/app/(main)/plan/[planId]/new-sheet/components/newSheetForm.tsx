@@ -15,10 +15,16 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { useParams } from "next/navigation"
+import { useMutateSheetQuery } from "@/queries/sheet.queries"
+import { EnumSheetType } from "@prisma/client"
 
-export default function NewSheetForm() {
-    const { planId } = useParams()
+type NewSheetFormProps = {
+    planId: string
+}
+
+export default function NewSheetForm({
+    planId }: NewSheetFormProps) {
+    const { mutate } = useMutateSheetQuery()
     const form = useForm<z.infer<typeof newSheetFormSchema>>({
         resolver: zodResolver(newSheetFormSchema),
         defaultValues: {
@@ -27,13 +33,7 @@ export default function NewSheetForm() {
         },
     })
     async function onSubmit(values: z.infer<typeof newSheetFormSchema>) {
-        console.table(values)
-        const response = await fetch('/api/sheet', {
-            method: 'POST',
-            body: JSON.stringify({ ...values, planId: parseInt(planId as string) }),
-        })
-        const data = await response.json()
-        console.log(data)
+        mutate({ ...values, planId: parseInt(planId as string), sheetType: values.sheetType as EnumSheetType })
     }
     return <Card>
         <CardHeader>

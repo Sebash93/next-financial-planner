@@ -46,7 +46,7 @@ export async function DELETE(request: Request) {
         id,
       },
     });
-    return NextResponse.json({});
+    return NextResponse.json({ deletedRecord });
   } catch (error) {
     if (error instanceof Error) {
       console.log(error.stack);
