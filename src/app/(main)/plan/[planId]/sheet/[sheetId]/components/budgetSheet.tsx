@@ -10,7 +10,6 @@ import { OverAllTotals } from "@/components/custom/charts/overall-totals";
 import { BudgetTagDistribution } from "@/components/custom/charts/budget-tag-distribution";
 import { BudgetBucketDistribution } from "@/components/custom/charts/budget-bucket-distribution";
 
-const income = 26314000 + 2700000;
 const records: RecordModel[] = [
     {
         name: "Seguro Credito Hipotecario",

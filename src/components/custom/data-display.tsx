@@ -7,7 +7,14 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 
-export default function DataDisplay({ title, description, value, children }) {
+type DataDisplayProps = {
+    title: string;
+    description: string;
+    value?: string | number;
+    children?: React.ReactNode;
+}
+
+export default function DataDisplay({ title, description, value, children }: DataDisplayProps) {
     return (
         <Card>
             <CardHeader>
@@ -16,11 +23,11 @@ export default function DataDisplay({ title, description, value, children }) {
                     {description}
                 </CardDescription>
             </CardHeader>
-            <CardContent>
+            {value && <CardContent>
                 <span className="text-lg font-bold leading-none sm:text-3xl">
                     {value}
                 </span>
-            </CardContent>
+            </CardContent>}
             <CardFooter>
                 {children}
             </CardFooter>
