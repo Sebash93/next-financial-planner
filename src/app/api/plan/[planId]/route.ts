@@ -1,21 +1,37 @@
-
-import { prisma } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
+import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
 export async function GET(request: Request, { params }) {
   const { planId } = await params;
   try {
     const plan = await prisma.plan.findUnique({
       where: {
-        id: parseInt(planId)
-      }
+        id: parseInt(planId),
+      },
     });
-    console.log({plan});
+    console.log({ plan });
     return NextResponse.json(plan);
   } catch (error) {
     if (error instanceof Error) {
       console.log(error.stack);
     }
-    throw new Error('Failed to record your interaction. Please try again.');
+    throw new Error("Failed to record your interaction. Please try again.");
+  }
+}
+
+export async function DELETE(request: Request, { params }) {
+  const { planId } = await params;
+  try {
+    const plan = await prisma.plan.delete({
+      where: {
+        id: parseInt(planId),
+      },
+    });
+    return NextResponse.json(plan);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.stack);
+    }
+    throw new Error("Failed to record your interaction. Please try again.");
   }
 }

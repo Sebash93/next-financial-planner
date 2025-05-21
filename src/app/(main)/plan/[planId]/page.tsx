@@ -3,6 +3,7 @@ import { SheetTileGrid } from "./components/sheetTileGrid";
 import { PlanTitle } from "./components/planTitle";
 import { ReactQueryProvider } from "@/providers/react-query-provider";
 import { PageContent } from "@/components/custom/page-content";
+import { PlanSettings } from "./components/planSettings";
 
 type PlanIdPageProps = {
     params: {
@@ -18,6 +19,7 @@ export default async function PlanIdPage({ params }: PlanIdPageProps) {
                 <PlanTitle planId={planId} />
                 <PageContent>
                     <SheetTileGrid planId={planId} />
+                    <PlanSettings planId={planId} />
                 </PageContent>
             </ReactQueryProvider>
         </Page>

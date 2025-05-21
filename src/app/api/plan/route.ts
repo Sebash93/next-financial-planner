@@ -1,25 +1,28 @@
-import { prisma } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
+import { prisma } from "@/lib/prisma";
+import exp from "constants";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   const plans = await prisma.plan.findMany();
-  console.log({plans});
+  console.log({ plans });
   return NextResponse.json(plans);
 }
 
 export async function POST(request: Request) {
-  const { name, initialDate, endDate} = await request.json();
+  const { name, initialDate, endDate } = await request.json();
   try {
-    const newPlan = await prisma.plan.create({data: {
-      name: name,
-      initialDate: initialDate,
-      endDate: endDate,
-    }});
+    const newPlan = await prisma.plan.create({
+      data: {
+        name: name,
+        initialDate: initialDate,
+        endDate: endDate,
+      },
+    });
     return NextResponse.json(newPlan);
   } catch (error) {
     if (error instanceof Error) {
       console.log(error.stack);
     }
-    throw new Error('Failed to record your interaction. Please try again.');
+    throw new Error("Failed to record your interaction. Please try again.");
   }
 }
