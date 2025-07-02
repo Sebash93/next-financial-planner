@@ -1,15 +1,27 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
+
 type TileProps = {
     title: string
     description?: string
+    badge?: React.ReactNode
+    amount?: string
 }
 
-export const Tile = ({ title, description }: TileProps) => {
-    return <div className="rounded-xl border bg-card text-card-foreground shadow flex flex-col items-center p-6">
-        <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
-            {title}
-        </h4>
-        <p className="leading-7">
-            {description}
-        </p>
-    </div>
+export const Tile = ({ title, description, badge, amount }: TileProps) => {
+    return <Card>
+        <CardHeader className="pb-0">
+            <div className="flex justify-between">
+                <div className="text-muted-foreground text-sm">{amount}</div>
+                <div className="inline-block">
+                    {badge}
+                </div>
+            </div>
+            {description && <CardDescription>{description}</CardDescription>}
+        </CardHeader>
+        <CardContent>
+            <div className="text-xl font-bold tracking-tight">
+                {title}
+            </div>
+        </CardContent>
+    </Card>
 }

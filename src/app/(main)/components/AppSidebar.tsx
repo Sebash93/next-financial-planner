@@ -8,8 +8,8 @@ export function AppSidebar() {
     return (
         <Sidebar>
             <SidebarContent>
-                <SidebarPlanGroupWithProvider />
                 <SidebarGroup>
+                    <SidebarPlanGroupWithProvider />
                     <SidebarGroupLabel>Reportes</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>

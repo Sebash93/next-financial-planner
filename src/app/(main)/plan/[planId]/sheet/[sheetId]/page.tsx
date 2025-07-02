@@ -8,14 +8,16 @@ import SheetTile from "../../components/sheetTile";
 import { SheetTitle } from "./components/sheetTitle";
 import { PageContent } from "@/components/custom/page-content";
 import { SheetContent } from "./components/sheetContent";
+import { SheetSettings } from "./components/sheetSettings";
 
 export default async function SheetPage({ params }) {
-    const { sheetId } = await params;
+    const { sheetId, planId } = await params;
     return (
         <Page>
             <ReactQueryProvider>
                 <SheetTitle sheetId={sheetId} />
                 <SheetContent sheetId={sheetId} />
+                <SheetSettings planId={planId} sheetId={sheetId} />
             </ReactQueryProvider>
         </Page>
     );

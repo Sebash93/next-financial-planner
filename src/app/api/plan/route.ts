@@ -3,8 +3,16 @@ import exp from "constants";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const plans = await prisma.plan.findMany();
-  console.log({ plans });
+  const plans = await prisma.plan.findMany({
+    include: {
+      Sheet: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
   return NextResponse.json(plans);
 }
 

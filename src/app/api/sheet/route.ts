@@ -9,9 +9,23 @@ export async function GET(request: NextRequest) {
         where: {
           planId: parseInt(planId),
         },
+        include: {
+          Record: {
+            select: {
+              amount: true,
+            },
+          },
+        },
       })
     : [];
-  return NextResponse.json(sheets);
+
+  // Add sum of records to each sheet
+  const sheetsWithSum = sheets.map((sheet) => ({
+    ...sheet,
+    recordsSum: sheet.Record.reduce((sum, rec) => sum + rec.amount, 0),
+  }));
+
+  return NextResponse.json(sheetsWithSum);
 }
 
 export async function POST(request: Request) {

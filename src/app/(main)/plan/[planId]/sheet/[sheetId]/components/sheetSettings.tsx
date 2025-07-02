@@ -1,23 +1,24 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import { useErrorToast } from "@/hooks/use-error-toast"
-import { useDeletePlanQuery } from "@/queries/plan.queries"
+import { useErrorToast } from "@/hooks/use-error-toast";
+import { useDeleteSheetQuery } from "@/queries/sheet.queries";
 import { Trash2 } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
 
-type PlanSettingsProps = {
-    planId: string
+type SheetSettingsProps = {
+    planId: string;
+    sheetId: string;
 }
 
-export const PlanSettings = ({ planId }: PlanSettingsProps) => {
-    const { mutateAsync } = useDeletePlanQuery();
+export const SheetSettings = ({ planId, sheetId }: SheetSettingsProps) => {
+    const { mutateAsync } = useDeleteSheetQuery(planId);
     const { push } = useRouter();
 
     const { errorToast } = useErrorToast();
     const handleDeletePlan = async () => {
         try {
-            await mutateAsync(planId);
-            push("/plan");
+            await mutateAsync(sheetId);
+            push("/plan/" + planId);
         } catch (error) {
             errorToast("No se pudo eliminar el plan" + error);
         }
@@ -25,7 +26,7 @@ export const PlanSettings = ({ planId }: PlanSettingsProps) => {
     return <div className="border-t pt-8 mt-8 flex justify-end items-center gap-4">
         <Button variant="outline" onClick={handleDeletePlan}>
             <Trash2 className="h-4 w-4" />
-            Eliminar Plan
+            Eliminar Hoja
         </Button>
     </div>
 }

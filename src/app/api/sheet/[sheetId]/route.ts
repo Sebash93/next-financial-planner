@@ -19,3 +19,20 @@ export async function GET(request: Request, { params }) {
     throw new Error("Failed to record your interaction. Please try again.");
   }
 }
+
+export async function DELETE(request: Request, { params }) {
+  const { sheetId } = await params;
+  try {
+    const sheet = await prisma.sheet.delete({
+      where: {
+        id: parseInt(sheetId),
+      },
+    });
+    return NextResponse.json(sheet);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.stack);
+    }
+    throw new Error("Failed to record your interaction. Please try again.");
+  }
+}

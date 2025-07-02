@@ -5,14 +5,18 @@ import {
   UseQueryResult,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Plan } from "@prisma/client";
+import { Plan, Sheet } from "@prisma/client";
 import { ApiError } from "./api";
 
-const PLAN_QUERY_KEY = "plan";
+export const PLAN_QUERY_KEY = "plan";
 const PLAN_QUERY_URL = "/api/plan";
 
-const usePlanQuery = (): UseQueryResult<Plan[], ApiError> => {
-  return useQuery<Plan[], ApiError>({
+type PlanWithSheet = Plan & {
+  Sheet: Pick<Sheet, "id" | "name">[];
+};
+
+const usePlanQuery = (): UseQueryResult<PlanWithSheet[], ApiError> => {
+  return useQuery<PlanWithSheet[], ApiError>({
     queryKey: [PLAN_QUERY_KEY],
     queryFn: async () => {
       const res = await fetch(PLAN_QUERY_URL);
