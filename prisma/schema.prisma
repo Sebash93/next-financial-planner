@@ -14,6 +14,7 @@ enum EnumSheetType {
   BUDGET
   EXPENSE_FLOW
   INCOME
+  CREDIT
 }
 
 model Plan {
@@ -46,16 +47,20 @@ model Tag {
 }
 
 model Record {
-  id       Int     @id @default(autoincrement())
-  name     String
-  amount   Int
-  date     BigInt?
-  sheetId  Int
-  sheet    Sheet   @relation(fields: [sheetId], references: [id], onDelete: Cascade)
-  bucketId Int?
-  bucket   Bucket? @relation(fields: [bucketId], references: [id], onDelete: SetNull)
-  tagId    Int?
-  tag      Tag?    @relation(fields: [tagId], references: [id], onDelete: SetNull)
+  id                Int     @id @default(autoincrement())
+  name              String
+  amount            Int
+  date              BigInt?
+  sheetId           Int
+  sheet             Sheet   @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  bucketId          Int?
+  bucket            Bucket? @relation(fields: [bucketId], references: [id], onDelete: SetNull)
+  tagId             Int?
+  tag               Tag?    @relation(fields: [tagId], references: [id], onDelete: SetNull)
+  currentBalance    Int?    // Current balance of the credit/loan
+  monthlyPayment    Int?    // Required monthly payment
+  interestRate      Float?  // Monthly interest rate as decimal (e.g., 1.5 for 1.5%)
+  additionalPayment Int?    // Optional additional payment
 }
 
 model Bucket {

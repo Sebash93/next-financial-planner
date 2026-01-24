@@ -4,15 +4,17 @@ import { prisma } from "@/lib/prisma";
 type PlanReport = {
   budgetTotal: number;
   incomeTotal: number;
+  creditPaymentTotal: number;
+  creditBalanceTotal: number;
   total: number;
 };
 
 /**
  * Server action: get a report for a plan.
  * Aggregates the sum of all record amounts across all sheets in the plan,
- * grouped by sheet type (BUDGET and INCOME).
+ * grouped by sheet type (BUDGET, INCOME, CREDIT).
  * @param planId - the ID of the plan to report on
- * @returns an object containing budgetTotal and incomeTotal
+ * @returns an object containing budgetTotal, incomeTotal, creditPaymentTotal, creditBalanceTotal, and total
  */
 export async function getPlanReport(planId: string): Promise<PlanReport> {
   // Parse and validate planId
@@ -30,10 +32,22 @@ export async function getPlanReport(planId: string): Promise<PlanReport> {
     _sum: { amount: true },
     where: { sheet: { planId: id, sheetType: "INCOME" } },
   });
+  // Sum payments (monthlyPayment + additionalPayment) for CREDIT sheets
+  const creditPaymentRes = await prisma.record.aggregate({
+    _sum: { monthlyPayment: true, additionalPayment: true },
+    where: { sheet: { planId: id, sheetType: "CREDIT" } },
+  });
+  // Sum currentBalance for CREDIT sheets
+  const creditBalanceRes = await prisma.record.aggregate({
+    _sum: { currentBalance: true },
+    where: { sheet: { planId: id, sheetType: "CREDIT" } },
+  });
   const budgetTotal = budgetRes._sum?.amount ?? 0;
   const incomeTotal = incomeRes._sum?.amount ?? 0;
-  const total = incomeTotal - budgetTotal;
-  return { budgetTotal, incomeTotal, total };
+  const creditPaymentTotal = (creditPaymentRes._sum?.monthlyPayment ?? 0) + (creditPaymentRes._sum?.additionalPayment ?? 0);
+  const creditBalanceTotal = creditBalanceRes._sum?.currentBalance ?? 0;
+  const total = incomeTotal - budgetTotal - creditPaymentTotal;
+  return { budgetTotal, incomeTotal, creditPaymentTotal, creditBalanceTotal, total };
 }
 
 /**

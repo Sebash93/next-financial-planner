@@ -1,11 +1,11 @@
 import { numberToCurrency } from "@/utils/currencies"
 
 type GridCellCurrencyProps = {
-    amount: number
+    amount: number | null | undefined
 }
 
 export const GridCellCurrency = ({ amount }: GridCellCurrencyProps) => {
-    const curreny = amount
-    const formattedCurrency = numberToCurrency(curreny)
+    const numericValue = amount ?? 0
+    const formattedCurrency = numberToCurrency(numericValue)
     return <div>{formattedCurrency}</div>
 }

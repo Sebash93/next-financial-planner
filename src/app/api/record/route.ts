@@ -15,7 +15,18 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { name, date, amount, tagId, bucketId, sheetId } = await request.json();
+  const {
+    name,
+    date,
+    amount,
+    tagId,
+    bucketId,
+    sheetId,
+    currentBalance,
+    monthlyPayment,
+    interestRate,
+    additionalPayment,
+  } = await request.json();
   try {
     const newRecord = await prisma.record.create({
       data: {
@@ -25,9 +36,12 @@ export async function POST(request: Request) {
         bucketId,
         amount,
         sheetId,
+        currentBalance,
+        monthlyPayment,
+        interestRate,
+        additionalPayment,
       },
     });
-    console.log({ name, date, amount, sheetId });
     return NextResponse.json(newRecord);
   } catch (error) {
     if (error instanceof Error) {

@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { DatePicker } from "../date-picker"
 import { getDateFromTimestamp, getTimestampFromDate } from "@/utils/dates"
 import { InputCurrency } from "../input-currency"
+import { InputPercentage } from "../input-percentage"
 import { InputSelect } from "../input-select"
 import { Bucket, Tag } from "@prisma/client"
 import { useMemo } from "react"
@@ -31,10 +32,12 @@ export const GridCellEdit = <TData, TValue>({ column, value, tags, buckets, acce
         })) || []
     }, [buckets])
 
+    const currencyAccessors = ["amount", "currentBalance", "monthlyPayment", "additionalPayment"]
+
     const handleChange = (value: unknown) => {
         if (accessor === "date") {
             onChange(getTimestampFromDate(value as Date))
-        } else if (accessor === "amount") {
+        } else if (currencyAccessors.includes(accessor) || accessor === "interestRate") {
             onChange(value)
         } else if (accessor === "tagId" || accessor === "bucketId") {
             onChange(parseInt(value as string, 10))
@@ -45,8 +48,17 @@ export const GridCellEdit = <TData, TValue>({ column, value, tags, buckets, acce
     if (accessor === "date") {
         return <DatePicker value={value ? getDateFromTimestamp(value as number) : undefined} onChange={handleChange} />
     }
-    if (accessor === "amount") {
+    if (currencyAccessors.includes(accessor)) {
         return <InputCurrency
+            value={value as number}
+            onChange={handleChange}
+            placeholder={String(
+                column.header
+            )}
+        />
+    }
+    if (accessor === "interestRate") {
+        return <InputPercentage
             value={value as number}
             onChange={handleChange}
             placeholder={String(

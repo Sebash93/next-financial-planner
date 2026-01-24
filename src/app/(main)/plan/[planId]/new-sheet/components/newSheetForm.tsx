@@ -69,6 +69,7 @@ export default function NewSheetForm({
                                     </FormControl>
                                     <SelectContent>
                                         <SelectItem value="BUDGET">Presupuesto Mensual</SelectItem>
+                                        <SelectItem value="CREDIT">Creditos</SelectItem>
                                         <SelectItem value="EXPENSE_FLOW">Flujo de gastos</SelectItem>
                                         <SelectItem value="INCOME">Ingresos Mensuales</SelectItem>
                                     </SelectContent>

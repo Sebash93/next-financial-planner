@@ -18,6 +18,16 @@ export const PlanSummaryReport = async ({ planId }: PlanSummaryReportProps) => {
                     <div className="flex items-center gap-2 leading-none text-muted-foreground">
                         Ingresos de {numberToCurrency(summary.incomeTotal)}
                     </div>
+                    {summary.creditPaymentTotal > 0 && (
+                        <div className="flex items-center gap-2 leading-none text-muted-foreground">
+                            Pagos de Credito de {numberToCurrency(summary.creditPaymentTotal)}
+                        </div>
+                    )}
+                    {summary.creditBalanceTotal > 0 && (
+                        <div className="flex items-center gap-2 leading-none text-muted-foreground">
+                            Deuda Total: {numberToCurrency(summary.creditBalanceTotal)}
+                        </div>
+                    )}
                 </div>
             </div>
         </DataDisplay>
