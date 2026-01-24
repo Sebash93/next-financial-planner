@@ -90,6 +90,7 @@ const useUpdateRecordQuery = (): UseMutationResult<RecordModel, ApiError, Update
   const queryClient = useQueryClient();
   return useMutation<RecordModel, ApiError, UpdateRecordParams>({
     mutationFn: async ({ recordId, data }) => {
+      console.log({ data })
       const res = await fetch(`${RECORD_QUERY_URL}/${recordId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

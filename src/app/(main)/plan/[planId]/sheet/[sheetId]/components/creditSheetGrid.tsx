@@ -14,7 +14,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { int, z } from "zod";
 
 const defaultFormValues = {
     name: "",
@@ -72,7 +72,7 @@ export default function CreditSheetGrid({ records, buckets, sheetId }: CreditShe
             const monthlyPayment = data.monthlyPayment ?? 0
             const additionalPayment = data.additionalPayment ?? 0
             const amount = monthlyPayment + additionalPayment
-
+            console.log({ interestRate: data.interestRate })
             await updateRecord({
                 recordId,
                 data: {

@@ -7,28 +7,53 @@ type InputPercentageProps = {
     placeholder?: string;
 } & Omit<React.ComponentProps<"input">, "value">;
 
+const formatDisplayValue = (value: number | null | undefined): string => {
+    if (value === null || value === undefined) return "";
+    // Round to 2 decimal places and use comma as separator
+    const rounded = Math.round(value * 100) / 100;
+    return rounded.toString().replace(".", ",");
+};
+
+const parseInputToNumber = (input: string): number | null => {
+    if (input === "" || input === ",") return null;
+    // Replace comma with dot for parsing
+    const normalized = input.replace(",", ".");
+    const parsed = parseFloat(normalized);
+    return isNaN(parsed) ? null : parsed;
+};
+
 export const InputPercentage = ({ value, onChange, placeholder, ...props }: InputPercentageProps) => {
-    const [inputValue, setInputValue] = useState<string>(value?.toString() ?? "");
+    const [inputValue, setInputValue] = useState<string>(formatDisplayValue(value));
 
     useEffect(() => {
-        setInputValue(value?.toString() ?? "");
+        setInputValue(formatDisplayValue(value));
     }, [value]);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = event.target.value;
-        // Allow empty, digits, and one decimal point
-        if (newValue === "" || /^\d*\.?\d*$/.test(newValue)) {
-            setInputValue(newValue);
-        }
-    };
+        const rawValue = event.target.value;
 
-    const handleBlur = () => {
-        if (inputValue === "") {
-            onChange(null);
-        } else {
-            const parsed = parseFloat(inputValue);
-            onChange(isNaN(parsed) ? null : parsed);
+        // Replace dot with comma
+        let newValue = rawValue.replace(".", ",");
+
+        // Only allow digits and one comma
+        if (!/^\d*,?\d*$/.test(newValue)) {
+            return;
         }
+
+        // Limit to 2 decimal places
+        const commaIndex = newValue.indexOf(",");
+        if (commaIndex !== -1) {
+            const decimals = newValue.substring(commaIndex + 1);
+            if (decimals.length > 2) {
+                newValue = newValue.substring(0, commaIndex + 3);
+            }
+        }
+
+        setInputValue(newValue);
+
+        // Call onChange with the parsed number
+        const parsed = parseInputToNumber(newValue);
+        onChange(parsed);
     };
 
     return (
@@ -38,7 +63,6 @@ export const InputPercentage = ({ value, onChange, placeholder, ...props }: Inpu
             inputMode="decimal"
             value={inputValue}
             onChange={handleChange}
-            onBlur={handleBlur}
             placeholder={placeholder}
         />
     );

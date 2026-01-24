@@ -8,6 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev      # Start development server (http://localhost:3000)
 npm run build    # Build for production
 npm run lint     # Run ESLint
+npm test         # Run tests in watch mode
+npm run test:run # Run tests once
 npx prisma db push          # Push schema changes to SQLite database
 npx prisma generate         # Regenerate Prisma client after schema changes
 npx prisma studio           # Open Prisma Studio to browse database
@@ -21,7 +23,7 @@ This is a Next.js 15 financial planning application using the App Router with a 
 
 The core entities are defined in `prisma/schema.prisma`:
 - **Plan**: A financial plan with a date range containing multiple sheets
-- **Sheet**: A categorized view within a plan (types: BUDGET, EXPENSE_FLOW, INCOME)
+- **Sheet**: A categorized view within a plan (types: BUDGET, EXPENSE_FLOW, INCOME, CREDIT)
 - **Record**: Individual financial entries with amount, optional date, bucket, and tag
 - **Bucket**: Categories for organizing records across plans
 - **Tag**: Sheet-specific labels with colors for records
@@ -56,4 +58,13 @@ The core entities are defined in `prisma/schema.prisma`:
 - Forms use react-hook-form with Zod resolvers
 - API routes return `NextResponse.json()` and use Prisma client from `@/lib/prisma`
 - Query invalidation happens automatically in mutation `onSuccess` callbacks
-- Sheet types determine which grid component renders (budgetGrid, incomeSheetGrid, expenseFlowSheetGrid)
+- Sheet types determine which grid component renders (budgetGrid, incomeSheetGrid, expenseFlowSheetGrid, creditSheetGrid)
+
+### Testing
+
+Uses **Vitest + React Testing Library**. See `docs/TESTING.md` for full strategy.
+
+- **Priority 1**: Utility functions (`src/utils/`) - pure functions, easy to test
+- **Priority 2**: Custom UI components (`src/components/custom/`) - inputs, grid cells, displays
+- **Target coverage**: 50-60%
+- Place tests next to source files: `component.tsx` → `component.test.tsx`

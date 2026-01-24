@@ -63,6 +63,9 @@ export default function SheetGrid<TData, TValue>({
 
     const handleAdd = () => {
         if (onRowAdd) {
+            console.log({
+                newRowData
+            })
             onRowAdd(newRowData)
             setNewRowData({})
         }
@@ -82,6 +85,7 @@ export default function SheetGrid<TData, TValue>({
             ...editedRowData,
             [accessor]: value,
         }
+        console.log({ updatedData })
         setEditedRowData(updatedData)
 
         if (validationSchema) {
@@ -102,6 +106,7 @@ export default function SheetGrid<TData, TValue>({
     const handleSave = () => {
         if (editingRowId === null || !onRowUpdate) return
         if (Object.keys(validationErrors).length > 0) return
+        console.log({ saveData: editedRowData })
         onRowUpdate(editingRowId, editedRowData)
         setEditingRowId(null)
         setEditedRowData({})
