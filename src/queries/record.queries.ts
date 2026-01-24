@@ -78,4 +78,33 @@ const useDeleteRecordQuery = (): UseMutationResult<RecordModel, ApiError, number
   });
 };
 
-export { useRecordQuery, useMutateRecordQuery, useDeleteRecordQuery };
+type UpdateRecordParams = {
+  recordId: number;
+  data: Partial<RecordModel>;
+};
+
+/**
+ * Update a record by ID
+ */
+const useUpdateRecordQuery = (): UseMutationResult<RecordModel, ApiError, UpdateRecordParams> => {
+  const queryClient = useQueryClient();
+  return useMutation<RecordModel, ApiError, UpdateRecordParams>({
+    mutationFn: async ({ recordId, data }) => {
+      const res = await fetch(`${RECORD_QUERY_URL}/${recordId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const error: ApiError = await res.json();
+        throw error;
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [RECORD_QUERY_KEY] });
+    },
+  });
+};
+
+export { useRecordQuery, useMutateRecordQuery, useDeleteRecordQuery, useUpdateRecordQuery };

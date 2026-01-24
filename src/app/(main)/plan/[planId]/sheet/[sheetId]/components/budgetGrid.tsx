@@ -3,16 +3,16 @@
 import { GridCellCurrency } from "@/components/custom/grid/grid-cell-currency";
 import { GridCellDictionary } from "@/components/custom/grid/grid-cell-dictionary";
 import SheetGrid from "@/components/custom/sheet-grid";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { newBudgetRecordFormSchema } from "@/form-schemas/new-budget-record-form.schema";
 import { useFormCallbacks } from "@/hooks/use-form-callbacks";
+import { useUpdateRecordQuery } from "@/queries/record.queries";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Bucket, Record as RecordModel, Tag } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import { Trash2 } from "lucide-react";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const defaultFormValues = {
@@ -47,6 +47,7 @@ export default function BudgetGrid({ records, tags, buckets, sheetId }: BudgetGr
         defaultValues: defaultFormValues,
     })
     const { onSubmit, onSubmitInvalid, onDelete } = useFormCallbacks<FormValues, RecordModel>({ form })
+    const { mutateAsync: updateRecord } = useUpdateRecordQuery();
 
     const handleRowAdd = (row: Partial<RecordModel>) => {
         if (row.name) form.setValue("name", row.name)
@@ -55,6 +56,14 @@ export default function BudgetGrid({ records, tags, buckets, sheetId }: BudgetGr
         if (row.bucketId) form.setValue("bucketId", row.bucketId)
         form.handleSubmit((data: FormValues) => onSubmit({ ...data, sheetId: parseInt(sheetId) }), onSubmitInvalid)()
     }
+
+    const handleRowUpdate = async (recordId: number, data: Partial<RecordModel>) => {
+        try {
+            await updateRecord({ recordId, data: { name: data.name, amount: data.amount, tagId: data.tagId, bucketId: data.bucketId } });
+        } catch {
+            toast.error("Error al actualizar el registro");
+        }
+    };
 
     const columns: ColumnDef<RecordModel>[] = [
         {
@@ -90,11 +99,7 @@ export default function BudgetGrid({ records, tags, buckets, sheetId }: BudgetGr
             id: "actions",
             accessorKey: "actions",
             header: "",
-            cell: ({ row }) => {
-                return <Button variant="ghost" className="w-4 h-4 p-2" onClick={() => onDelete(row.original.id)} >
-                    <Trash2 />
-                </Button>
-            }
+            cell: () => null,
         }
     ]
 
@@ -103,7 +108,17 @@ export default function BudgetGrid({ records, tags, buckets, sheetId }: BudgetGr
             <CardTitle>Presupuesto</CardTitle>
         </CardHeader>
         <CardContent>
-            <SheetGrid columns={columns} data={records} tags={tags} buckets={buckets} onRowAdd={handleRowAdd} />
+            <SheetGrid
+                columns={columns}
+                data={records}
+                tags={tags}
+                buckets={buckets}
+                onRowAdd={handleRowAdd}
+                onRowUpdate={handleRowUpdate}
+                onRowDelete={onDelete}
+                validationSchema={newBudgetRecordFormSchema}
+                getRowId={(row) => row.id}
+            />
         </CardContent>
     </Card>
 }

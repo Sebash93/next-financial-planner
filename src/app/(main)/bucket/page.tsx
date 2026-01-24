@@ -8,7 +8,6 @@ export const dynamic = 'force-dynamic';
 
 export default async function BucketPage() {
     const buckets: Bucket[] = await fetch("http://localhost:3000/api/bucket").then((res) => res.json());
-    console.log({ buckets })
     return <Page>
         <PageTitle>Bolsillos</PageTitle>
         <NewBucketForm />
