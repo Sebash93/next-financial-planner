@@ -6,7 +6,7 @@ import Link from "next/link"
 
 export function AppSidebar() {
     return (
-        <Sidebar>
+        <Sidebar collapsible="none">
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarPlanGroupWithProvider />
