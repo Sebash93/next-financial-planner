@@ -28,7 +28,7 @@ model Sheet {
   id        Int           @id @default(autoincrement())
   name      String
   planId    Int
-  plan      Plan          @relation(fields: [planId], references: [id])
+  plan      Plan          @relation(fields: [planId], references: [id], onDelete: Cascade)
   sheetType EnumSheetType
   Record    Record[]
   Tag       Tag[]
@@ -39,8 +39,8 @@ model Sheet {
 model Tag {
   id      Int      @id @default(autoincrement())
   name    String
-  sheetId Int
-  sheet   Sheet    @relation(fields: [sheetId], references: [id])
+  sheetId Int?
+  sheet   Sheet?   @relation(fields: [sheetId], references: [id], onDelete: SetNull)
   color   String
   Record  Record[]
 }
@@ -51,11 +51,11 @@ model Record {
   amount   Int
   date     BigInt?
   sheetId  Int
-  sheet    Sheet   @relation(fields: [sheetId], references: [id])
+  sheet    Sheet   @relation(fields: [sheetId], references: [id], onDelete: Cascade)
   bucketId Int?
-  bucket   Bucket? @relation(fields: [bucketId], references: [id])
+  bucket   Bucket? @relation(fields: [bucketId], references: [id], onDelete: SetNull)
   tagId    Int?
-  tag      Tag?    @relation(fields: [tagId], references: [id])
+  tag      Tag?    @relation(fields: [tagId], references: [id], onDelete: SetNull)
 }
 
 model Bucket {
