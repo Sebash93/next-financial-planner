@@ -83,4 +83,56 @@ const useDeletePlanQuery = (): UseMutationResult<Plan, ApiError, string> => {
   });
 };
 
-export { usePlanQuery, useOnePlanQuery, useMutatePlanQuery, useDeletePlanQuery };
+const useUpdatePlanQuery = (): UseMutationResult<
+  Plan,
+  ApiError,
+  { planId: string; data: Partial<Plan> }
+> => {
+  const queryClient = useQueryClient();
+  return useMutation<Plan, ApiError, { planId: string; data: Partial<Plan> }>({
+    mutationFn: async ({ planId, data }) => {
+      const res = await fetch(`${PLAN_QUERY_URL}/${planId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        const error: ApiError = await res.json();
+        throw error;
+      }
+      return res.json();
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: [PLAN_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [PLAN_QUERY_KEY, variables.planId] });
+    },
+  });
+};
+
+/**
+ * Download plan data as CSV
+ * Returns the full plan data with all sheets and records for CSV export
+ */
+const useExportPlanQuery = (planId: string): UseQueryResult<any, ApiError> => {
+  return useQuery<any, ApiError>({
+    queryKey: [PLAN_QUERY_KEY, "export", planId],
+    queryFn: async () => {
+      const res = await fetch(`${PLAN_QUERY_URL}/${planId}/export`);
+      if (!res.ok) {
+        const error: ApiError = await res.json();
+        throw error;
+      }
+      return res.json();
+    },
+    enabled: false, // Only fetch when manually triggered
+  });
+};
+
+export {
+  usePlanQuery,
+  useOnePlanQuery,
+  useMutatePlanQuery,
+  useDeletePlanQuery,
+  useUpdatePlanQuery,
+  useExportPlanQuery
+};

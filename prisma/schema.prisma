@@ -26,12 +26,14 @@ model Plan {
 
 model Sheet {
   id        Int           @id @default(autoincrement())
-  name      String        @unique
+  name      String
   planId    Int
   plan      Plan          @relation(fields: [planId], references: [id])
   sheetType EnumSheetType
   Record    Record[]
   Tag       Tag[]
+
+  @@unique([name, planId])
 }
 
 model Tag {

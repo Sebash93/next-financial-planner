@@ -94,4 +94,74 @@ const useDeleteSheetQuery = (planId: string): UseMutationResult<Sheet, ApiError,
   });
 };
 
-export { useSheetQuery, useOneSheetQuery, useDeleteSheetQuery, useMutateSheetQuery };
+/**
+ * Duplicate a sheet to another plan
+ */
+const useDuplicateSheetQuery = (): UseMutationResult<
+  Sheet,
+  ApiError,
+  { sheetId: string; destinationPlanId: number }
+> => {
+  const queryClient = useQueryClient();
+  return useMutation<Sheet, ApiError, { sheetId: string; destinationPlanId: number }>({
+    mutationFn: async ({ sheetId, destinationPlanId }) => {
+      const res = await fetch(`${SHEET_QUERY_URL}/${sheetId}/duplicate`, {
+        method: "POST",
+        body: JSON.stringify({ destinationPlanId }),
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        const error: ApiError = await res.json();
+        throw error;
+      }
+      return res.json();
+    },
+    onSuccess: (data) => {
+      // Invalidate sheets for both source and destination plans
+      queryClient.invalidateQueries({ queryKey: [SHEET_QUERY_KEY] });
+      // Invalidate the destination plan
+      queryClient.invalidateQueries({ queryKey: [PLAN_QUERY_KEY, data.planId] });
+      // Invalidate records query
+      queryClient.invalidateQueries({ queryKey: [RECORD_QUERY_KEY] });
+    },
+  });
+};
+
+/**
+ * Update a sheet
+ */
+const useUpdateSheetQuery = (): UseMutationResult<
+  Sheet,
+  ApiError,
+  { sheetId: string; data: Partial<Sheet> }
+> => {
+  const queryClient = useQueryClient();
+  return useMutation<Sheet, ApiError, { sheetId: string; data: Partial<Sheet> }>({
+    mutationFn: async ({ sheetId, data }) => {
+      const res = await fetch(`${SHEET_QUERY_URL}/${sheetId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        const error: ApiError = await res.json();
+        throw error;
+      }
+      return res.json();
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: [SHEET_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [SHEET_QUERY_KEY, variables.sheetId] });
+      queryClient.invalidateQueries({ queryKey: [PLAN_QUERY_KEY, data.planId] });
+    },
+  });
+};
+
+export {
+  useSheetQuery,
+  useOneSheetQuery,
+  useDeleteSheetQuery,
+  useMutateSheetQuery,
+  useDuplicateSheetQuery,
+  useUpdateSheetQuery
+};
