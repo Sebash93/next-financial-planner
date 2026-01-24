@@ -82,9 +82,9 @@ export default function SheetGrid<TData, TValue>({
 
             {onRowAdd && (
                 <TableRow>
-                    {columns.map((column) => {
-                        const key = column.id;
-                        const accessor = column.accessorKey as string;
+                    {columns.map((column, idx) => {
+                        const key = column.id ?? `col-${idx}`;
+                        const accessor = 'accessorKey' in column ? String(column.accessorKey) : key;
                         return (
                             <TableCell key={"new-" + key}>
                                 {key === "actions" ? (
@@ -95,7 +95,7 @@ export default function SheetGrid<TData, TValue>({
                                         accessor={accessor}
                                         tags={tags}
                                         buckets={buckets}
-                                        value={(newRowData as any)[accessor] ?? ""}
+                                        value={(newRowData as Record<string, unknown>)[accessor] as string ?? ""}
                                         onChange={(value) =>
                                             setNewRowData((prev) => ({
                                                 ...prev,

@@ -7,13 +7,13 @@ import { PlanSettings } from "./components/planSettings";
 import { PlanResults } from "./components/planResults";
 
 type PlanIdPageProps = {
-    params: {
+    params: Promise<{
         planId: string;
-    };
+    }>;
 }
 
 export default async function PlanIdPage({ params }: PlanIdPageProps) {
-    const { planId } = params;
+    const { planId } = await params;
     return (
         <Page>
             <ReactQueryProvider>

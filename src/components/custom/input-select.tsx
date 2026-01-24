@@ -21,7 +21,7 @@ export const InputSelect = ({ options, onChange, defaultValue, placeholder, valu
         <SelectContent>
             <SelectGroup>
                 {
-                    options.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)
+                    options.map((option) => <SelectItem key={option.value} value={String(option.value)}>{option.label}</SelectItem>)
                 }
             </SelectGroup>
         </SelectContent>

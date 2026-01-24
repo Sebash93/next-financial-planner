@@ -37,7 +37,7 @@ export const GridCellEdit = <TData, TValue>({ column, value, tags, buckets, onCh
         } else if (column.id === "amount" || column.id === "tag" || column.id === "bucket") {
             onChange(value)
         } else {
-            onChange(value.target.value)
+            onChange((value as React.ChangeEvent<HTMLInputElement>).target.value)
         }
     }
     if (column.id === "date") {

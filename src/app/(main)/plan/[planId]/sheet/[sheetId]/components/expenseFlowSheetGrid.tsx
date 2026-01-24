@@ -34,7 +34,7 @@ export default function ExpenseFlowSheetGrid({ records, sheetId }: ExpenseFlowSh
 
     const handleRowAdd = (row: Partial<Record>) => {
         if (row.name) form.setValue("name", row.name)
-        if (row.date) form.setValue("date", row.date)
+        if (row.date) form.setValue("date", Number(row.date))
         if (row.amount) form.setValue("amount", row.amount)
         form.handleSubmit((data: FormValues) => onSubmit({
             ...data,
@@ -81,7 +81,7 @@ export default function ExpenseFlowSheetGrid({ records, sheetId }: ExpenseFlowSh
             <CardTitle>Presupuesto</CardTitle>
         </CardHeader>
         <CardContent>
-            <SheetGrid columns={columns} data={records} onRowAdd={handleRowAdd} />
+            <SheetGrid columns={columns} data={records ?? []} onRowAdd={handleRowAdd} />
         </CardContent>
     </Card>
 }

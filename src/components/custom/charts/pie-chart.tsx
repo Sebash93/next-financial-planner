@@ -7,11 +7,14 @@ import { PieChart as RechartsPieChart, Pie } from 'recharts';
 
 const COLORS = ["#e60049", "#0bb4ff", "#50e991", "#e6d800", "#9b19f5", "#ffa300", "#dc0ab4", "#b3d4ff", "#00bfa0"];
 
-const genChartConfigFromData = (dataKey, dataLabel, data) => {
-    const config = {}
+type DataItem = Record<string, string | number>;
+
+const genChartConfigFromData = (dataKey: string, dataLabel: string, data: DataItem[]): ChartConfig => {
+    const config: ChartConfig = {}
     data.forEach((item, index) => {
-        config[item[dataLabel]] = {
-            label: item[dataLabel],
+        const labelValue = String(item[dataLabel]);
+        config[labelValue] = {
+            label: labelValue,
             color: COLORS[index],
         }
     })
@@ -23,7 +26,15 @@ const genChartConfigFromData = (dataKey, dataLabel, data) => {
     }
 }
 
-export default function PieChart({ title, description, dataKey, dataLabel, data }) {
+type PieChartProps = {
+    title: string;
+    description: string;
+    dataKey: string;
+    dataLabel: string;
+    data: DataItem[];
+};
+
+export default function PieChart({ title, description, dataKey, dataLabel, data }: PieChartProps) {
     const chartConfig = useMemo(() => genChartConfigFromData(dataKey, dataLabel, data), [dataKey, dataLabel, data])
     const dataWithFill = data.map((item, index) => {
         return {

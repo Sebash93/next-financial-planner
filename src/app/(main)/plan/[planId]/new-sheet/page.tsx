@@ -6,6 +6,8 @@ import { ReactQueryProvider } from "@/providers/react-query-provider";
 
 export default async function NewSheetPage({
     params
+}: {
+    params: Promise<{ planId: string }>
 }) {
     const { planId } = await params
     return <Page>

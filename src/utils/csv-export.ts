@@ -9,7 +9,7 @@ type SheetWithRecords = Sheet & {
     Record: RecordWithRelations[];
 };
 
-type PlanWithSheets = Plan & {
+export type PlanWithSheets = Plan & {
     Sheet: SheetWithRecords[];
 };
 

@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { Plan, Sheet } from "@prisma/client";
 import { ApiError } from "./api";
+import { PlanWithSheets } from "@/utils/csv-export";
 
 export const PLAN_QUERY_KEY = "plan";
 const PLAN_QUERY_URL = "/api/plan";
@@ -113,8 +114,8 @@ const useUpdatePlanQuery = (): UseMutationResult<
  * Download plan data as CSV
  * Returns the full plan data with all sheets and records for CSV export
  */
-const useExportPlanQuery = (planId: string): UseQueryResult<any, ApiError> => {
-  return useQuery<any, ApiError>({
+const useExportPlanQuery = (planId: string): UseQueryResult<PlanWithSheets, ApiError> => {
+  return useQuery<PlanWithSheets, ApiError>({
     queryKey: [PLAN_QUERY_KEY, "export", planId],
     queryFn: async () => {
       const res = await fetch(`${PLAN_QUERY_URL}/${planId}/export`);

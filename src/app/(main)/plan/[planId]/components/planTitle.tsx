@@ -44,7 +44,7 @@ export const PlanTitle = ({ planId }: PlanTitleProps) => {
             });
             setIsEditing(false);
             setEditedName("");
-        } catch (error) {
+        } catch {
             errorToast("No se pudo actualizar el nombre del plan");
         }
     };

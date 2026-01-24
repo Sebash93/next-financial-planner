@@ -44,7 +44,7 @@ export const SheetTitle = ({ sheetId }: SheetTitleProps) => {
             });
             setIsEditing(false);
             setEditedName("");
-        } catch (error) {
+        } catch {
             errorToast("No se pudo actualizar el nombre de la hoja");
         }
     };

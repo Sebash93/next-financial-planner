@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request, { params }) {
+type RouteParams = { params: Promise<{ sheetId: string }> };
+
+export async function GET(request: Request, { params }: RouteParams) {
   console.log("Fetching sheet", { params });
   const { sheetId } = await params;
   try {
@@ -20,7 +22,7 @@ export async function GET(request: Request, { params }) {
   }
 }
 
-export async function DELETE(request: Request, { params }) {
+export async function DELETE(request: Request, { params }: RouteParams) {
   const { sheetId } = await params;
   try {
     const sheet = await prisma.sheet.delete({
@@ -37,7 +39,7 @@ export async function DELETE(request: Request, { params }) {
   }
 }
 
-export async function PUT(request: Request, { params }) {
+export async function PUT(request: Request, { params }: RouteParams) {
   const { sheetId } = await params;
   const body = await request.json();
   try {

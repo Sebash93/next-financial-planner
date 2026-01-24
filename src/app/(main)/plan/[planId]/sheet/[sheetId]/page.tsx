@@ -1,16 +1,10 @@
 import Page from "@/components/custom/page";
-import BudgetSheet from "./components/budgetSheet";
-import { Record, Sheet, Tag } from "@prisma/client";
-import ExpenseFlowSheet from "./components/expenseFlowSheet";
-import IncomeSheet from "./components/incomeSheet";
 import { ReactQueryProvider } from "@/providers/react-query-provider";
-import SheetTile from "../../components/sheetTile";
 import { SheetTitle } from "./components/sheetTitle";
-import { PageContent } from "@/components/custom/page-content";
 import { SheetContent } from "./components/sheetContent";
 import { SheetSettings } from "./components/sheetSettings";
 
-export default async function SheetPage({ params }) {
+export default async function SheetPage({ params }: { params: Promise<{ sheetId: string; planId: string }> }) {
     const { sheetId, planId } = await params;
     return (
         <Page>

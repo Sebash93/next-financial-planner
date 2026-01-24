@@ -1,4 +1,3 @@
-import { Record } from "@prisma/client";
 import { IncomeSheetGrid } from "./incomeSheetGrid";
 import { useRecordQuery } from "@/queries/record.queries";
 

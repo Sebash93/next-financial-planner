@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request, { params }) {
+type RouteParams = { params: Promise<{ planId: string }> };
+
+export async function GET(request: Request, { params }: RouteParams) {
   const { planId } = await params;
   try {
     const plan = await prisma.plan.findUnique({
@@ -18,7 +20,7 @@ export async function GET(request: Request, { params }) {
   }
 }
 
-export async function DELETE(request: Request, { params }) {
+export async function DELETE(request: Request, { params }: RouteParams) {
   const { planId } = await params;
   try {
     const plan = await prisma.plan.delete({
@@ -35,7 +37,7 @@ export async function DELETE(request: Request, { params }) {
   }
 }
 
-export async function PUT(request: Request, { params }) {
+export async function PUT(request: Request, { params }: RouteParams) {
   const { planId } = await params;
   const body = await request.json();
   try {

@@ -1,7 +1,6 @@
 "use client"
 
 import BudgetGrid from "./budgetGrid";
-import { RecordModel } from "@/models/record";
 import { BudgetTags } from "./budgetTags";
 import { useTagQuery } from "@/queries/tag.queries";
 import { useBucketQuery } from "@/queries/bucket.queries";
@@ -16,9 +15,9 @@ type BudgetSheetProps = {
 }
 
 export default function BudgetSheet({ sheetId }: BudgetSheetProps) {
-    const { data: tags, isLoading: isLoadingTags } = useTagQuery(sheetId);
-    const { data: buckets, isLoading: isLoadingBuckets, } = useBucketQuery(sheetId);
-    const { data: records, isLoading: isLoadingRecords } = useRecordQuery(sheetId);
+    const { data: tags } = useTagQuery(sheetId);
+    const { data: buckets } = useBucketQuery(sheetId);
+    const { data: records } = useRecordQuery(sheetId);
 
     const allDataLoaded = tags && buckets && records;
 
