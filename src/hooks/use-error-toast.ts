@@ -1,13 +1,8 @@
-import { useToast } from "./use-toast";
+import { toast } from "sonner";
 
 const useErrorToast = () => {
-  const { toast } = useToast();
   const errorToast = (message: string) => {
-    toast({
-      title: "Error",
-      description: message,
-      variant: "destructive",
-    });
+    toast.error("Error", { description: message });
   };
   return { errorToast };
 };
