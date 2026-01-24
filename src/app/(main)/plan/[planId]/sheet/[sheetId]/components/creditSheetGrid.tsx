@@ -2,6 +2,7 @@
 
 import { GridCellCurrency } from "@/components/custom/grid/grid-cell-currency";
 import { GridCellDictionary } from "@/components/custom/grid/grid-cell-dictionary";
+import { GridCellInsights } from "@/components/custom/grid/grid-cell-insights";
 import { GridCellPercentage } from "@/components/custom/grid/grid-cell-percentage";
 import SheetGrid from "@/components/custom/sheet-grid";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -128,6 +129,19 @@ export default function CreditSheetGrid({ records, buckets, sheetId }: CreditShe
             accessorKey: "additionalPayment",
             header: "Pago Adicional",
             cell: ({ cell }) => <GridCellCurrency amount={cell.getValue() as number | null} />,
+        },
+        {
+            id: "insights",
+            header: "Info",
+            cell: ({ row }) => (
+                <GridCellInsights
+                    currentBalance={row.original.currentBalance}
+                    monthlyPayment={row.original.monthlyPayment}
+                    interestRate={row.original.interestRate}
+                    additionalPayment={row.original.additionalPayment}
+                />
+            ),
+            enableSorting: false,
         },
         {
             id: "actions",

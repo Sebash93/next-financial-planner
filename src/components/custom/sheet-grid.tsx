@@ -251,7 +251,9 @@ export default function SheetGrid<TData, TValue>({
                                     )
                                 }
 
-                                if (rowIsEditing && columnId !== "actions") {
+                                const hasAccessorKey = 'accessorKey' in cell.column.columnDef
+
+                                if (rowIsEditing && columnId !== "actions" && hasAccessorKey) {
                                     return (
                                         <TableCell key={cell.id}>
                                             <GridCellEdit
@@ -280,12 +282,13 @@ export default function SheetGrid<TData, TValue>({
                 <TableRow>
                     {columns.map((column, idx) => {
                         const key = column.id ?? `col-${idx}`;
-                        const accessor = 'accessorKey' in column ? String(column.accessorKey) : key;
+                        const hasAccessorKey = 'accessorKey' in column;
+                        const accessor = hasAccessorKey ? String(column.accessorKey) : key;
                         return (
                             <TableCell key={"new-" + key}>
                                 {key === "actions" ? (
                                     <Button onClick={handleAdd}>Agregar</Button>
-                                ) : (
+                                ) : hasAccessorKey ? (
                                     <GridCellEdit
                                         column={column}
                                         accessor={accessor}
@@ -299,7 +302,7 @@ export default function SheetGrid<TData, TValue>({
                                             }))
                                         }
                                     />
-                                )}
+                                ) : null}
                             </TableCell>
                         );
                     })}
