@@ -16,7 +16,7 @@ type GridCellEditProps<TData, TValue> = {
     onChange: (value: unknown) => void
 }
 
-export const GridCellEdit = <TData, TValue>({ column, value, tags, buckets, onChange }: GridCellEditProps<TData, TValue>) => {
+export const GridCellEdit = <TData, TValue>({ column, value, tags, buckets, accessor, onChange }: GridCellEditProps<TData, TValue>) => {
     const tagsOptions = useMemo(() => {
         return tags?.map(({ name, id }) => ({
             value: id,
@@ -32,18 +32,20 @@ export const GridCellEdit = <TData, TValue>({ column, value, tags, buckets, onCh
     }, [buckets])
 
     const handleChange = (value: unknown) => {
-        if (column.id === "date") {
+        if (accessor === "date") {
             onChange(getTimestampFromDate(value as Date))
-        } else if (column.id === "amount" || column.id === "tag" || column.id === "bucket") {
+        } else if (accessor === "amount") {
             onChange(value)
+        } else if (accessor === "tagId" || accessor === "bucketId") {
+            onChange(parseInt(value as string, 10))
         } else {
             onChange((value as React.ChangeEvent<HTMLInputElement>).target.value)
         }
     }
-    if (column.id === "date") {
+    if (accessor === "date") {
         return <DatePicker value={value ? getDateFromTimestamp(value as number) : undefined} onChange={handleChange} />
     }
-    if (column.id === "amount") {
+    if (accessor === "amount") {
         return <InputCurrency
             value={value as number}
             onChange={handleChange}
@@ -52,18 +54,18 @@ export const GridCellEdit = <TData, TValue>({ column, value, tags, buckets, onCh
             )}
         />
     }
-    if (column.id === "tag" && tagsOptions) {
+    if (accessor === "tagId" && tagsOptions) {
         return <InputSelect
-            value={value as string | null}
+            value={value != null ? String(value) : null}
             options={tagsOptions}
             onChange={handleChange}
             placeholder={String(
                 column.header
             )} />
     }
-    if (column.id === "bucket" && bucketOptions) {
+    if (accessor === "bucketId" && bucketOptions) {
         return <InputSelect
-            value={value as string | null}
+            value={value != null ? String(value) : null}
             options={bucketOptions}
             onChange={handleChange}
             placeholder={String(
