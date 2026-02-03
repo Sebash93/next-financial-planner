@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "db": "npx prisma dev --name='financial-planner'",
     "lint": "eslint src/",
     "test": "vitest",
     "test:run": "vitest run",

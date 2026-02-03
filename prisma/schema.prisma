@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -57,10 +57,10 @@ model Record {
   bucket            Bucket? @relation(fields: [bucketId], references: [id], onDelete: SetNull)
   tagId             Int?
   tag               Tag?    @relation(fields: [tagId], references: [id], onDelete: SetNull)
-  currentBalance    Int?    // Current balance of the credit/loan
-  monthlyPayment    Int?    // Required monthly payment
-  interestRate      Float?  // Monthly interest rate as decimal (e.g., 1.5 for 1.5%)
-  additionalPayment Int?    // Optional additional payment
+  currentBalance    Int? // Current balance of the credit/loan
+  monthlyPayment    Int? // Required monthly payment
+  interestRate      Float? // Monthly interest rate as decimal (e.g., 1.5 for 1.5%)
+  additionalPayment Int? // Optional additional payment
 }
 
 model Bucket {

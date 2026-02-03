@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import MonthYearPicker from "@/components/custom/month-year-picker";
-import { getStartOfCurrentMonth } from "@/utils/dates";
+import { getStartOfCurrentMonth, getOneYearLater } from "@/utils/dates";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReactQueryProvider } from "@/providers/react-query-provider";
 import { useMutatePlanQuery } from "@/queries/plan.queries";
@@ -20,7 +20,7 @@ const NewPlanForm = () => {
         defaultValues: {
             name: "",
             initialDate: getStartOfCurrentMonth().getTime(),
-            endDate: getStartOfCurrentMonth().getTime(),
+            endDate: getOneYearLater(getStartOfCurrentMonth()).getTime(),
         },
     })
 
