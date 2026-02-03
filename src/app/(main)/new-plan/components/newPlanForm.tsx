@@ -12,8 +12,10 @@ import { getStartOfCurrentMonth, getOneYearLater } from "@/utils/dates";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReactQueryProvider } from "@/providers/react-query-provider";
 import { useMutatePlanQuery } from "@/queries/plan.queries";
+import { useRouter } from "next/navigation";
 
 const NewPlanForm = () => {
+    const router = useRouter()
     const { mutate } = useMutatePlanQuery()
     const form = useForm<z.infer<typeof newPlanFormSchema>>({
         resolver: zodResolver(newPlanFormSchema),
@@ -27,7 +29,11 @@ const NewPlanForm = () => {
     async function onSubmit(values: z.infer<typeof newPlanFormSchema>) {
         const initialDate = values.initialDate / 1000
         const endDate = values.endDate / 1000
-        mutate({ ...values, initialDate, endDate })
+        mutate({ ...values, initialDate, endDate }, {
+            onSuccess: (plan) => {
+                router.push(`/plan/${plan.id}`)
+            },
+        })
     }
 
     return (

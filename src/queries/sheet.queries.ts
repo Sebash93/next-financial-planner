@@ -67,8 +67,9 @@ const useMutateSheetQuery = (): UseMutationResult<Sheet, ApiError, Partial<Sheet
       }
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [SHEET_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [PLAN_QUERY_KEY, data.planId] });
     },
   });
 };

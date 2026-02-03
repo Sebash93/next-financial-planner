@@ -65,6 +65,6 @@ model Record {
 
 model Bucket {
   id     Int      @id @default(autoincrement())
-  name   String
+  name   String   @unique
   Record Record[]
 }

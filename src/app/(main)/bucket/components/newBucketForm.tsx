@@ -8,8 +8,10 @@ import { newBucketSchema } from "@/form-schemas/new-bucket-form.schema"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { useMutateBucketQuery } from "@/queries/bucket.queries"
 
 export const NewBucketForm = () => {
+    const { mutate } = useMutateBucketQuery()
     const form = useForm<z.infer<typeof newBucketSchema>>({
         resolver: zodResolver(newBucketSchema),
         defaultValues: {
@@ -18,12 +20,11 @@ export const NewBucketForm = () => {
     })
 
     async function onSubmit(values: z.infer<typeof newBucketSchema>) {
-        const response = await fetch('/api/bucket', {
-            method: 'POST',
-            body: JSON.stringify({ ...values }),
+        mutate(values, {
+            onSuccess: () => {
+                form.reset()
+            },
         })
-        const data = await response.json()
-        console.log(data)
     }
 
     return <Card>
@@ -53,5 +54,4 @@ export const NewBucketForm = () => {
             </form>
         </Form>
     </Card>
-
 }

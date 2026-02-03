@@ -17,6 +17,23 @@ interface ApiError {
 }
 
 /**
+ * Fetch all buckets
+ */
+const useAllBucketsQuery = (): UseQueryResult<Bucket[], ApiError> => {
+  return useQuery<Bucket[], ApiError>({
+    queryKey: [BUCKET_QUERY_KEY],
+    queryFn: async () => {
+      const res = await fetch(BUCKET_QUERY_URL);
+      if (!res.ok) {
+        const error: ApiError = await res.json();
+        throw error;
+      }
+      return res.json();
+    },
+  });
+};
+
+/**
  * Fetch buckets for a given sheet
  * @param sheetId - the ID of the sheet to fetch buckets for
  */
@@ -64,4 +81,36 @@ const useMutateBucketQuery = (): UseMutationResult<
   });
 };
 
-export { useBucketQuery, useMutateBucketQuery };
+/**
+ * Delete a bucket by ID
+ */
+const useDeleteBucketQuery = (): UseMutationResult<
+  Bucket,
+  ApiError,
+  number
+> => {
+  const queryClient = useQueryClient();
+  return useMutation<Bucket, ApiError, number>({
+    mutationFn: async (bucketId) => {
+      const res = await fetch(`${BUCKET_QUERY_URL}/${bucketId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        const error: ApiError = await res.json();
+        throw error;
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [BUCKET_QUERY_KEY] });
+    },
+  });
+};
+
+export {
+  useAllBucketsQuery,
+  useBucketQuery,
+  useMutateBucketQuery,
+  useDeleteBucketQuery,
+};

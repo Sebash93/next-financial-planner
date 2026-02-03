@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select"
 import { useMutateSheetQuery } from "@/queries/sheet.queries"
 import { EnumSheetType } from "@prisma/client"
+import { useRouter } from "next/navigation"
 
 type NewSheetFormProps = {
     planId: string
@@ -24,6 +25,7 @@ type NewSheetFormProps = {
 
 export default function NewSheetForm({
     planId }: NewSheetFormProps) {
+    const router = useRouter()
     const { mutate } = useMutateSheetQuery()
     const form = useForm<z.infer<typeof newSheetFormSchema>>({
         resolver: zodResolver(newSheetFormSchema),
@@ -33,7 +35,11 @@ export default function NewSheetForm({
         },
     })
     async function onSubmit(values: z.infer<typeof newSheetFormSchema>) {
-        mutate({ ...values, planId: parseInt(planId as string), sheetType: values.sheetType as EnumSheetType })
+        mutate({ ...values, planId: parseInt(planId as string), sheetType: values.sheetType as EnumSheetType }, {
+            onSuccess: (sheet) => {
+                router.push(`/plan/${planId}/sheet/${sheet.id}`)
+            },
+        })
     }
     return <Card>
         <CardHeader>
