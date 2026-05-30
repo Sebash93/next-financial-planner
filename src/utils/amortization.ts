@@ -1,3 +1,5 @@
+import { addMonths } from "date-fns";
+
 export type CreditInsights = {
   monthlyInterest: number;
   monthsToPayoff: number | null;
@@ -6,106 +8,67 @@ export type CreditInsights = {
 };
 
 /**
- * Calculate monthly interest amount
+ * Calculate monthly interest amount.
  * @param balance Current balance
  * @param monthlyInterestRate Monthly interest rate as decimal (e.g., 0.02 for 2%)
  */
-export function calculateMonthlyInterest(
-  balance: number,
-  monthlyInterestRate: number
-): number {
+export function calculateMonthlyInterest(balance: number, monthlyInterestRate: number): number {
   return balance * monthlyInterestRate;
 }
 
 /**
- * Calculate months to payoff using amortization formula
+ * Months to pay off a balance with a fixed monthly payment.
  * n = -ln(1 - (r × B) / P) / ln(1 + r)
- * @param balance Current balance
- * @param monthlyPayment Monthly payment amount
- * @param monthlyInterestRate Monthly interest rate as decimal
- * @param additionalPayment Additional payment amount
- * @returns Object with months and payoff date, or null if unpayable
+ * @returns number of months, or null if the payment never clears the balance.
  */
 export function calculateMonthsToPayoff(
   balance: number,
   monthlyPayment: number,
-  monthlyInterestRate: number,
-  additionalPayment: number = 0
-): { months: number; payoffDate: Date } | null {
-  const totalPayment = monthlyPayment + additionalPayment;
-
-  // If no interest, simple division
+  monthlyInterestRate: number
+): number | null {
   if (monthlyInterestRate === 0) {
-    if (totalPayment <= 0) return null;
-    const months = Math.ceil(balance / totalPayment);
-    const payoffDate = new Date();
-    // First payment is this month, so payoff is (months - 1) months from now
-    payoffDate.setMonth(payoffDate.getMonth() + months - 1);
-    return { months, payoffDate };
+    if (monthlyPayment <= 0) return null;
+    return Math.ceil(balance / monthlyPayment);
   }
 
-  // Check if payment covers interest
   const monthlyInterest = balance * monthlyInterestRate;
-  if (totalPayment <= monthlyInterest) {
-    return null; // Payment doesn't cover interest, will never pay off
-  }
+  if (monthlyPayment <= monthlyInterest) return null;
 
-  // Amortization formula: n = -ln(1 - (r × B) / P) / ln(1 + r)
   const r = monthlyInterestRate;
   const B = balance;
-  const P = totalPayment;
-
-  const numerator = -Math.log(1 - (r * B) / P);
-  const denominator = Math.log(1 + r);
-  const months = Math.ceil(numerator / denominator);
-
-  const payoffDate = new Date();
-  // First payment is this month, so payoff is (months - 1) months from now
-  payoffDate.setMonth(payoffDate.getMonth() + months - 1);
-
-  return { months, payoffDate };
+  const P = monthlyPayment;
+  return Math.ceil(-Math.log(1 - (r * B) / P) / Math.log(1 + r));
 }
 
 /**
- * Format a date to Spanish locale month and year
- * @param date Date to format
+ * Format a date to Spanish locale month and year.
  */
 export function formatPayoffMonth(date: Date): string {
   return date.toLocaleDateString("es-ES", { month: "long", year: "numeric" });
 }
 
 /**
- * Calculate all credit insights for a credit record
- * @param balance Current balance
+ * Credit insights computed from a balance already projected to `asOfMonthMs`.
+ * @param projectedBalance Balance as of asOfMonthMs (see projectCreditBalance)
  * @param monthlyPayment Monthly payment
  * @param interestRate Monthly interest rate as percentage (e.g., 2 for 2%)
- * @param additionalPayment Additional payment
+ * @param asOfMonthMs The month the projected balance is measured at (ms)
  */
 export function calculateCreditInsights(
-  balance: number | null | undefined,
+  projectedBalance: number | null | undefined,
   monthlyPayment: number | null | undefined,
   interestRate: number | null | undefined,
-  additionalPayment: number | null | undefined
+  asOfMonthMs: number
 ): CreditInsights {
-  const safeBalance = balance ?? 0;
+  const safeBalance = projectedBalance ?? 0;
   const safeMonthlyPayment = monthlyPayment ?? 0;
   const safeInterestRate = interestRate ?? 0;
-  const safeAdditionalPayment = additionalPayment ?? 0;
-
-  // Convert percentage to decimal
   const monthlyInterestRate = safeInterestRate / 100;
 
-  // Edge case: Already paid off
   if (safeBalance <= 0) {
-    return {
-      monthlyInterest: 0,
-      monthsToPayoff: null,
-      payoffDate: null,
-      message: "Credito pagado",
-    };
+    return { monthlyInterest: 0, monthsToPayoff: null, payoffDate: null, message: "Credito pagado" };
   }
 
-  // Edge case: Missing payment or interest data
   if (safeMonthlyPayment === 0 || safeInterestRate === 0) {
     return {
       monthlyInterest: calculateMonthlyInterest(safeBalance, monthlyInterestRate),
@@ -116,15 +79,9 @@ export function calculateCreditInsights(
   }
 
   const monthlyInterest = calculateMonthlyInterest(safeBalance, monthlyInterestRate);
-  const payoffResult = calculateMonthsToPayoff(
-    safeBalance,
-    safeMonthlyPayment,
-    monthlyInterestRate,
-    safeAdditionalPayment
-  );
+  const months = calculateMonthsToPayoff(safeBalance, safeMonthlyPayment, monthlyInterestRate);
 
-  // Edge case: Payment doesn't cover interest
-  if (payoffResult === null) {
+  if (months === null) {
     return {
       monthlyInterest,
       monthsToPayoff: null,
@@ -133,10 +90,7 @@ export function calculateCreditInsights(
     };
   }
 
-  return {
-    monthlyInterest,
-    monthsToPayoff: payoffResult.months,
-    payoffDate: payoffResult.payoffDate,
-    message: null,
-  };
+  // First payment is the as-of month, so payoff is (months - 1) months later.
+  const payoffDate = addMonths(new Date(asOfMonthMs), months - 1);
+  return { monthlyInterest, monthsToPayoff: months, payoffDate, message: null };
 }

@@ -33,7 +33,7 @@ export const GridCellEdit = <TData, TValue>({ column, value, tags, buckets, acce
         })) || []
     }, [buckets])
 
-    const currencyAccessors = ["amount", "currentBalance", "monthlyPayment", "additionalPayment"]
+    const currencyAccessors = ["amount", "currentBalance", "monthlyPayment", "additionalPayment", "otherCosts"]
 
     const handleChange = (value: unknown) => {
         if (accessor === "date") {

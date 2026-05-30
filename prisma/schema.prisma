@@ -60,7 +60,8 @@ model Record {
   currentBalance    Int? // Current balance of the credit/loan
   monthlyPayment    Int? // Required monthly payment
   interestRate      Float? // Monthly interest rate as decimal (e.g., 1.5 for 1.5%)
-  additionalPayment Int? // Optional additional payment
+  additionalPayment Int? // Optional additional payment (CREDIT_FLOW payments)
+  otherCosts        Int? // Recurring insurance/administrative costs (CREDIT)
 }
 
 model Bucket {

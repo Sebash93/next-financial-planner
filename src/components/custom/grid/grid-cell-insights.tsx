@@ -9,23 +9,23 @@ import { numberToCurrency } from "@/utils/currencies";
 import { Info } from "lucide-react";
 
 type GridCellInsightsProps = {
-  currentBalance: number | null | undefined;
+  projectedBalance: number | null | undefined;
   monthlyPayment: number | null | undefined;
   interestRate: number | null | undefined;
-  additionalPayment: number | null | undefined;
+  asOfMonthMs: number;
 };
 
 export function GridCellInsights({
-  currentBalance,
+  projectedBalance,
   monthlyPayment,
   interestRate,
-  additionalPayment,
+  asOfMonthMs,
 }: GridCellInsightsProps) {
   const insights = calculateCreditInsights(
-    currentBalance,
+    projectedBalance,
     monthlyPayment,
     interestRate,
-    additionalPayment
+    asOfMonthMs
   );
 
   const renderTooltipContent = () => {

@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     monthlyPayment,
     interestRate,
     additionalPayment,
+    otherCosts,
   } = await request.json();
   try {
     const newRecord = await prisma.record.create({
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
         monthlyPayment,
         interestRate,
         additionalPayment,
+        otherCosts,
       },
     });
     return NextResponse.json(serializeRecord(newRecord));

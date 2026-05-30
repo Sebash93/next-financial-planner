@@ -23,9 +23,7 @@ export default function CreditSheet({ sheetId }: CreditSheetProps) {
         if (!records) return { totalPayments: 0, totalBalance: 0 };
 
         const payments = records.reduce((sum, record) => {
-            const monthly = record.monthlyPayment ?? 0;
-            const additional = record.additionalPayment ?? 0;
-            return sum + monthly + additional;
+            return sum + (record.monthlyPayment ?? 0);
         }, 0);
 
         const balance = records.reduce((sum, record) => {
