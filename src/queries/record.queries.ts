@@ -11,6 +11,13 @@ import { ApiError } from "./api";
 export const RECORD_QUERY_KEY = "record";
 const RECORD_QUERY_URL = "/api/record";
 
+// JSON.stringify cannot serialize BigInt (e.g. Record.date). Send it as a
+// numeric string; the API converts it back to BigInt for Prisma.
+const stringifyRecord = (value: unknown) =>
+  JSON.stringify(value, (_key, val) =>
+    typeof val === "bigint" ? val.toString() : val
+  );
+
 /**
  * Fetch records for a given sheet
  * @param sheetId - the ID of the sheet to fetch records for
@@ -39,7 +46,7 @@ const useMutateRecordQuery = (): UseMutationResult<RecordModel, ApiError, Partia
       const res = await fetch(RECORD_QUERY_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newRecord),
+        body: stringifyRecord(newRecord),
       });
       if (!res.ok) {
         const error: ApiError = await res.json();
@@ -90,11 +97,10 @@ const useUpdateRecordQuery = (): UseMutationResult<RecordModel, ApiError, Update
   const queryClient = useQueryClient();
   return useMutation<RecordModel, ApiError, UpdateRecordParams>({
     mutationFn: async ({ recordId, data }) => {
-      console.log({ data })
       const res = await fetch(`${RECORD_QUERY_URL}/${recordId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: stringifyRecord(data),
       });
       if (!res.ok) {
         const error: ApiError = await res.json();

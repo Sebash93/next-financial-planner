@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { serializeRecord } from "@/utils/serialize-record";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -11,7 +12,7 @@ export async function GET(request: Request) {
         },
       })
     : [];
-  return NextResponse.json(records);
+  return NextResponse.json(records.map(serializeRecord));
 }
 
 export async function POST(request: Request) {
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
     const newRecord = await prisma.record.create({
       data: {
         name,
-        date,
+        date: date != null ? BigInt(date) : null,
         tagId,
         bucketId,
         amount,
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
         additionalPayment,
       },
     });
-    return NextResponse.json(newRecord);
+    return NextResponse.json(serializeRecord(newRecord));
   } catch (error) {
     if (error instanceof Error) {
       console.log(error.stack);
@@ -53,7 +54,6 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   const { id } = await request.json();
-  console.log("DELETE", id);
   try {
     const deletedRecord = await prisma.record.delete({
       where: {
