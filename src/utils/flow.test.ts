@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { startOfMonth } from "date-fns";
-import { buildMonthlyFlow, findMonthFlow, type PlanFlowReport } from "./flow";
+import { buildMonthlyFlow, findMonthFlow, clampMonthRange, type PlanFlowReport } from "./flow";
 
 const month = (year: number, m: number) => startOfMonth(new Date(year, m, 1)).getTime();
 
@@ -79,5 +79,45 @@ describe("findMonthFlow", () => {
   it("returns undefined when the month is outside the range", () => {
     const flows = buildMonthlyFlow(baseReport());
     expect(findMonthFlow(flows, month(2027, 0))).toBeUndefined();
+  });
+});
+
+describe("clampMonthRange", () => {
+  it("clamps the start up to the current month when the plan started earlier", () => {
+    const planStart = new Date(2020, 0, 15).getTime();
+    const now = new Date(2026, 4, 10).getTime();
+    const planEnd = new Date(2026, 11, 1).getTime();
+    const r = clampMonthRange(planStart, now, planEnd);
+    expect(r.startMonth).toBe(startOfMonth(now).getTime());
+    expect(r.endMonth).toBe(startOfMonth(planEnd).getTime());
+  });
+
+  it("keeps the plan start when it is in the future", () => {
+    const planStart = new Date(2027, 2, 1).getTime();
+    const now = new Date(2026, 4, 10).getTime();
+    const planEnd = new Date(2027, 11, 1).getTime();
+    const r = clampMonthRange(planStart, now, planEnd);
+    expect(r.startMonth).toBe(startOfMonth(planStart).getTime());
+  });
+
+  it("normalizes all bounds to start-of-month", () => {
+    const r = clampMonthRange(
+      new Date(2026, 5, 17, 9).getTime(),
+      new Date(2026, 4, 17, 9).getTime(),
+      new Date(2026, 8, 20, 9).getTime()
+    );
+    expect(r.startMonth).toBe(startOfMonth(new Date(2026, 5, 1)).getTime());
+    expect(r.endMonth).toBe(startOfMonth(new Date(2026, 8, 1)).getTime());
+  });
+});
+
+describe("buildMonthlyFlow empty window", () => {
+  it("returns [] when the start month is after the end month", () => {
+    const report: PlanFlowReport = {
+      recurring: { incomeTotal: 1000, budgetTotal: 0, creditPaymentTotal: 0, creditBalanceTotal: 0 },
+      range: { startMonth: month(2027, 0), endMonth: month(2026, 0) },
+      expenseFlowByMonth: [],
+    };
+    expect(buildMonthlyFlow(report)).toEqual([]);
   });
 });

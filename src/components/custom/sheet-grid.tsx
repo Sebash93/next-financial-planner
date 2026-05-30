@@ -32,6 +32,7 @@ interface SheetGridProps<TData, TValue> {
     onRowDelete?: (rowId: number) => void
     validationSchema?: z.ZodSchema
     getRowId?: (row: TData) => number
+    minDate?: Date
 }
 
 export default function SheetGrid<TData, TValue>({
@@ -44,6 +45,7 @@ export default function SheetGrid<TData, TValue>({
     getRowId,
     tags,
     buckets,
+    minDate,
 }: SheetGridProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
     const table = useReactTable({
@@ -263,6 +265,7 @@ export default function SheetGrid<TData, TValue>({
                                                 buckets={buckets}
                                                 value={(editedRowData as Record<string, unknown>)[accessor]}
                                                 onChange={(value) => handleFieldChange(accessor, value)}
+                                                minDate={minDate}
                                             />
                                         </TableCell>
                                     )
@@ -301,6 +304,7 @@ export default function SheetGrid<TData, TValue>({
                                                 [accessor]: value,
                                             }))
                                         }
+                                        minDate={minDate}
                                     />
                                 ) : null}
                             </TableCell>

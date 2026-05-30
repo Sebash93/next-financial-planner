@@ -30,6 +30,8 @@ export type MonthlyFlow = {
 export function buildMonthlyFlow(report: PlanFlowReport): MonthlyFlow[] {
   const { recurring, range, expenseFlowByMonth } = report;
 
+  if (range.startMonth > range.endMonth) return [];
+
   const expenseByMonth = new Map<number, number>();
   for (const { month, total } of expenseFlowByMonth) {
     const key = startOfMonth(month).getTime();
@@ -61,4 +63,18 @@ export function buildMonthlyFlow(report: PlanFlowReport): MonthlyFlow[] {
 export function findMonthFlow(flows: MonthlyFlow[], monthTs: number): MonthlyFlow | undefined {
   const target = startOfMonth(monthTs).getTime();
   return flows.find((f) => f.month === target);
+}
+
+/**
+ * Clamp the planning window to start no earlier than the current month.
+ * All inputs are millisecond timestamps.
+ */
+export function clampMonthRange(
+  planStartMs: number,
+  nowMs: number,
+  planEndMs: number
+): { startMonth: number; endMonth: number } {
+  const startMonth = Math.max(startOfMonth(planStartMs).getTime(), startOfMonth(nowMs).getTime());
+  const endMonth = startOfMonth(planEndMs).getTime();
+  return { startMonth, endMonth };
 }

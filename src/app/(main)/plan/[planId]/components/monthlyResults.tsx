@@ -18,6 +18,10 @@ export default function MonthlyResults({ flows, range, creditBalanceTotal }: Mon
   const initial = clamp(startOfMonth(new Date()).getTime(), range.startMonth, range.endMonth);
   const [selectedMonth, setSelectedMonth] = useState(initial);
 
+  if (flows.length === 0) {
+    return <p className="text-sm text-muted-foreground">El plan ya finalizó.</p>;
+  }
+
   // Always resolve to a real flow entry; fall back to the first month.
   const flow = findMonthFlow(flows, selectedMonth) ?? flows[0];
 
@@ -25,7 +29,11 @@ export default function MonthlyResults({ flows, range, creditBalanceTotal }: Mon
     <div className="flex flex-col gap-4">
       <MonthYearPicker
         value={selectedMonth}
-        onChange={(value) => setSelectedMonth(startOfMonth(value).getTime())}
+        minValue={range.startMonth}
+        maxValue={range.endMonth}
+        onChange={(value) =>
+          setSelectedMonth(clamp(startOfMonth(value).getTime(), range.startMonth, range.endMonth))
+        }
       />
       {flow && <MonthlySummaryCard flow={flow} creditBalanceTotal={creditBalanceTotal} />}
     </div>

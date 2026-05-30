@@ -5,17 +5,34 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { startOfMonth } from "date-fns"
 import { getMonthFromTimestamp, getYearFromTimestamp } from "./month-year-picker.utils"
 
-const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i)
+const MONTHS = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+]
 
-export default function MonthYearPicker({ value, onChange }: {
+export default function MonthYearPicker({ value, onChange, minValue, maxValue }: {
     value: number,
-    onChange: (value: number) => void
+    onChange: (value: number) => void,
+    minValue?: number,
+    maxValue?: number,
 }) {
-
+    const current = new Date(value)
     const newMonth = getMonthFromTimestamp(value)
     const newYear = getYearFromTimestamp(value)
+
+    const isMonthDisabled = (monthIndex: number) => {
+        const monthTs = startOfMonth(new Date(current.getFullYear(), monthIndex, 1)).getTime()
+        if (minValue !== undefined && monthTs < startOfMonth(minValue).getTime()) return true
+        if (maxValue !== undefined && monthTs > startOfMonth(maxValue).getTime()) return true
+        return false
+    }
+
+    const startYear = minValue !== undefined ? new Date(minValue).getFullYear() : new Date().getFullYear()
+    const endYear = maxValue !== undefined ? new Date(maxValue).getFullYear() : startYear + 9
+    const years = Array.from({ length: Math.max(1, endYear - startYear + 1) }, (_, i) => startYear + i)
 
     const handleMonthChange = (month: string) => {
         onChange(new Date(value).setMonth(parseInt(month)))
@@ -31,18 +48,15 @@ export default function MonthYearPicker({ value, onChange }: {
                 <SelectValue placeholder="Mes" />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="00">Enero</SelectItem>
-                <SelectItem value="01">Febrero</SelectItem>
-                <SelectItem value="02">Marzo</SelectItem>
-                <SelectItem value="03">Abril</SelectItem>
-                <SelectItem value="04">Mayo</SelectItem>
-                <SelectItem value="05">Junio</SelectItem>
-                <SelectItem value="06">Julio</SelectItem>
-                <SelectItem value="07">Agosto</SelectItem>
-                <SelectItem value="08">Septiembre</SelectItem>
-                <SelectItem value="09">Octubre</SelectItem>
-                <SelectItem value="10">Noviembre</SelectItem>
-                <SelectItem value="11">Diciembre</SelectItem>
+                {MONTHS.map((label, idx) => (
+                    <SelectItem
+                        key={idx}
+                        value={idx.toString().padStart(2, "0")}
+                        disabled={isMonthDisabled(idx)}
+                    >
+                        {label}
+                    </SelectItem>
+                ))}
             </SelectContent>
         </Select>
         <Select value={newYear.toString()} onValueChange={handleYearChange}>

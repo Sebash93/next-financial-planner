@@ -16,9 +16,10 @@ import {
 type DatePickerProps = {
     onChange: (date: Date | undefined) => void
     value?: Date
+    minDate?: Date
 }
 
-export const DatePicker = ({ onChange, value }: DatePickerProps) => {
+export const DatePicker = ({ onChange, value, minDate }: DatePickerProps) => {
     return (
         <Popover>
             <PopoverTrigger asChild>
@@ -38,6 +39,8 @@ export const DatePicker = ({ onChange, value }: DatePickerProps) => {
                     mode="single"
                     selected={value}
                     onSelect={onChange}
+                    disabled={minDate ? { before: minDate } : undefined}
+                    startMonth={minDate}
                     initialFocus
                 />
             </PopoverContent>

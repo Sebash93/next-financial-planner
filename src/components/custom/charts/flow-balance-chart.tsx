@@ -23,6 +23,20 @@ type FlowBalanceChartProps = {
 };
 
 export default function FlowBalanceChart({ flows }: FlowBalanceChartProps) {
+  if (flows.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Flow View</CardTitle>
+          <CardDescription>Saldo acumulado por mes</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">No hay meses para mostrar.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const data = flows.map((f) => ({
     month: formatMonth(f.month),
     cumulativeBalance: f.cumulativeBalance,

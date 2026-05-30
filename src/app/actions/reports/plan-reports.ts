@@ -1,7 +1,7 @@
 "use server";
 import { prisma } from "@/lib/prisma";
 import { startOfMonth } from "date-fns";
-import type { PlanFlowReport } from "@/utils/flow";
+import { clampMonthRange, type PlanFlowReport } from "@/utils/flow";
 
 /**
  * Server action: month-aware report for a plan.
@@ -56,11 +56,9 @@ export async function getPlanFlowReport(planId: string): Promise<PlanFlowReport>
     creditBalanceTotal: creditBalanceRes._sum?.currentBalance ?? 0,
   };
 
-  // Plan dates are stored as epoch SECONDS; convert to ms before use.
-  const range = {
-    startMonth: startOfMonth(plan.initialDate * 1000).getTime(),
-    endMonth: startOfMonth(plan.endDate * 1000).getTime(),
-  };
+  // Plan dates are stored as epoch SECONDS; convert to ms. Clamp the window
+  // to start no earlier than the current month (forward-looking planning).
+  const range = clampMonthRange(plan.initialDate * 1000, Date.now(), plan.endDate * 1000);
 
   // EXPENSE_FLOW date is epoch MILLISECONDS (BigInt). Bucket by start-of-month.
   const byMonth = new Map<number, number>();

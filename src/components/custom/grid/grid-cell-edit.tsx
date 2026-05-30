@@ -15,9 +15,10 @@ type GridCellEditProps<TData, TValue> = {
     buckets?: Bucket[]
     accessor: string
     onChange: (value: unknown) => void
+    minDate?: Date
 }
 
-export const GridCellEdit = <TData, TValue>({ column, value, tags, buckets, accessor, onChange }: GridCellEditProps<TData, TValue>) => {
+export const GridCellEdit = <TData, TValue>({ column, value, tags, buckets, accessor, onChange, minDate }: GridCellEditProps<TData, TValue>) => {
     const tagsOptions = useMemo(() => {
         return tags?.map(({ name, id }) => ({
             value: id,
@@ -46,7 +47,7 @@ export const GridCellEdit = <TData, TValue>({ column, value, tags, buckets, acce
         }
     }
     if (accessor === "date") {
-        return <DatePicker value={value ? getDateFromTimestamp(value as number) : undefined} onChange={handleChange} />
+        return <DatePicker value={value ? getDateFromTimestamp(value as number) : undefined} onChange={handleChange} minDate={minDate} />
     }
     if (currencyAccessors.includes(accessor)) {
         return <InputCurrency
