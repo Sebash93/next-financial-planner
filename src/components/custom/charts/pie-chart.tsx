@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
+import { numberToCurrency } from '@/utils/currencies';
 import { useMemo } from 'react';
 import { PieChart as RechartsPieChart, Pie } from 'recharts';
 
@@ -62,21 +63,17 @@ export default function PieChart({ title, description, dataKey, dataLabel, data 
                             strokeWidth={5}
                             dataKey={dataKey}
                             nameKey={dataLabel}
-                            label={({ payload, ...props }) => {
-                                return (
-                                    <text
-                                        cx={props.cx}
-                                        cy={props.cy}
-                                        x={props.x}
-                                        y={props.y}
-                                        textAnchor={props.textAnchor}
-                                        dominantBaseline={props.dominantBaseline}
-                                        fill="hsla(var(--foreground))"
-                                    >
-                                        {payload["total"]}
-                                    </text>
-                                )
-                            }}
+                            label={({ payload, ...props }) => <text
+                                cx={props.cx}
+                                cy={props.cy}
+                                x={props.x}
+                                y={props.y}
+                                textAnchor={props.textAnchor}
+                                dominantBaseline={props.dominantBaseline}
+                                fill="hsla(var(--foreground))"
+                            >
+                                {numberToCurrency(payload["total"])}
+                            </text>}
                         >
                         </Pie>
                         <ChartLegend content={<ChartLegendContent />} className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center" />
