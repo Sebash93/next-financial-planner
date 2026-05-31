@@ -15,7 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { useMutateSheetQuery } from "@/queries/sheet.queries"
+import { useMutateSheetQuery, useSheetQuery } from "@/queries/sheet.queries"
 import { EnumSheetType } from "@prisma/client"
 import { useRouter } from "next/navigation"
 
@@ -27,6 +27,10 @@ export default function NewSheetForm({
     planId }: NewSheetFormProps) {
     const router = useRouter()
     const { mutate } = useMutateSheetQuery()
+    const { data: sheets } = useSheetQuery(planId)
+    const hasCredit = !!sheets?.some((s) => s.sheetType === "CREDIT")
+    const hasCreditFlow = !!sheets?.some((s) => s.sheetType === "CREDIT_FLOW")
+
     const form = useForm<z.infer<typeof newSheetFormSchema>>({
         resolver: zodResolver(newSheetFormSchema),
         defaultValues: {
@@ -34,6 +38,19 @@ export default function NewSheetForm({
             sheetType: "",
         },
     })
+
+    const selectedType = form.watch("sheetType")
+
+    // Reason the selected type cannot be created right now (null = allowed).
+    const blockedReason =
+        selectedType === "CREDIT" && hasCredit
+            ? "Ya existe una hoja de Crédito; no se puede crear otra."
+            : selectedType === "CREDIT_FLOW" && !hasCredit
+            ? "Primero debes crear una hoja de Crédito."
+            : selectedType === "CREDIT_FLOW" && hasCreditFlow
+            ? "Ya existe una hoja de Flujo de Crédito."
+            : null
+
     async function onSubmit(values: z.infer<typeof newSheetFormSchema>) {
         mutate({ ...values, planId: parseInt(planId as string), sheetType: values.sheetType as EnumSheetType }, {
             onSuccess: (sheet) => {
@@ -76,17 +93,26 @@ export default function NewSheetForm({
                                     <SelectContent>
                                         <SelectItem value="BUDGET">Presupuesto Mensual</SelectItem>
                                         <SelectItem value="CREDIT">Creditos</SelectItem>
-                                    <SelectItem value="EXPENSE_FLOW">Flujo de gastos</SelectItem>
+                                        <SelectItem value="CREDIT_FLOW">Flujo de Credito</SelectItem>
+                                        <SelectItem value="EXPENSE_FLOW">Flujo de gastos</SelectItem>
                                         <SelectItem value="INCOME">Ingresos Mensuales</SelectItem>
                                     </SelectContent>
                                 </Select>
+                                {selectedType === "CREDIT" && (
+                                    <p className="text-sm text-muted-foreground">
+                                        Solo se puede crear una hoja de Crédito por plan.
+                                    </p>
+                                )}
+                                {blockedReason && (
+                                    <p className="text-xs text-destructive">{blockedReason}</p>
+                                )}
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit">Crear</Button>
+                    <Button type="submit" disabled={!!blockedReason}>Crear</Button>
                 </CardFooter>
             </form>
         </Form>

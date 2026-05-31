@@ -48,3 +48,34 @@ describe("projectCreditBalance", () => {
     expect(projectCreditBalance(noInterest, month(2026, 4))).toBe(8000);
   });
 });
+
+describe("projectCreditBalance with extra payments", () => {
+  const noInterest = {
+    balance: 10000,
+    monthlyPayment: 500,
+    interestRate: 0,
+    balanceDateMs: month(2026, 0), // Jan 2026
+  };
+
+  it("applies an extra payment in its month", () => {
+    // Jan event: 10000 - 500 = 9500; Feb event: 9500 - 500 - 1000 = 8000 -> start of Mar
+    const extra = new Map<number, number>([[month(2026, 1), 1000]]);
+    expect(projectCreditBalance(noInterest, month(2026, 2), extra)).toBe(8000);
+  });
+
+  it("ignores extra payments dated before the Fecha Saldo month", () => {
+    // Dec 2025 is before Jan Fecha Saldo -> never an event month -> ignored
+    const extra = new Map<number, number>([[month(2025, 11), 1000]]);
+    expect(projectCreditBalance(noInterest, month(2026, 2), extra)).toBe(9000);
+  });
+
+  it("applies an extra payment dated in the Fecha Saldo month itself", () => {
+    // Jan event: 10000 - 500 - 1000 = 8500; Feb event: 8500 - 500 = 8000
+    const extra = new Map<number, number>([[month(2026, 0), 1000]]);
+    expect(projectCreditBalance(noInterest, month(2026, 2), extra)).toBe(8000);
+  });
+
+  it("is unchanged when no extra-payments map is passed (backward compatible)", () => {
+    expect(projectCreditBalance(noInterest, month(2026, 2))).toBe(9000);
+  });
+});

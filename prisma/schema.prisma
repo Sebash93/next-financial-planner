@@ -15,6 +15,7 @@ enum EnumSheetType {
   EXPENSE_FLOW
   INCOME
   CREDIT
+  CREDIT_FLOW
 }
 
 model Plan {
@@ -62,6 +63,9 @@ model Record {
   interestRate      Float? // Monthly interest rate as decimal (e.g., 1.5 for 1.5%)
   additionalPayment Int? // Optional additional payment (CREDIT_FLOW payments)
   otherCosts        Int? // Recurring insurance/administrative costs (CREDIT)
+  creditRecordId     Int?
+  creditRecord       Record?  @relation("CreditFlowPayments", fields: [creditRecordId], references: [id], onDelete: Cascade)
+  creditFlowPayments Record[] @relation("CreditFlowPayments")
 }
 
 model Bucket {

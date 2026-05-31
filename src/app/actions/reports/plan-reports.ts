@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { startOfMonth } from "date-fns";
 import { clampMonthRange, type PlanFlowReport } from "@/utils/flow";
+import { serializeRecord } from "@/utils/serialize-record";
 
 /**
  * Server action: month-aware report for a plan.
@@ -112,4 +113,19 @@ export async function getPlanBucketTotals(
     bucketName: nameMap[g.bucketId!] ?? '',
     total: g._sum.amount ?? 0,
   }));
+}
+
+/**
+ * Server action: the CREDIT records for a plan (from its single CREDIT sheet),
+ * with BigInt `date` serialized to number for the client.
+ */
+export async function getPlanCreditRecords(planId: string) {
+  const id = parseInt(planId, 10);
+  if (isNaN(id)) {
+    throw new Error(`Invalid planId: ${planId}`);
+  }
+  const records = await prisma.record.findMany({
+    where: { sheet: { planId: id, sheetType: "CREDIT" } },
+  });
+  return records.map(serializeRecord);
 }

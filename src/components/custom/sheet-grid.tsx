@@ -33,6 +33,8 @@ interface SheetGridProps<TData, TValue> {
     validationSchema?: z.ZodSchema
     getRowId?: (row: TData) => number
     minDate?: Date
+    credits?: { id: number; name: string }[]
+    rowClassName?: (row: TData) => string
 }
 
 export default function SheetGrid<TData, TValue>({
@@ -46,6 +48,8 @@ export default function SheetGrid<TData, TValue>({
     tags,
     buckets,
     minDate,
+    credits,
+    rowClassName,
 }: SheetGridProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
     const table = useReactTable({
@@ -237,7 +241,7 @@ export default function SheetGrid<TData, TValue>({
                             key={row.id}
                             data-state={row.getIsSelected() && "selected"}
                             onClick={() => handleRowClick(row.original)}
-                            className={onRowUpdate && getRowId ? "cursor-pointer hover:bg-muted/50" : ""}
+                            className={`${onRowUpdate && getRowId ? "cursor-pointer hover:bg-muted/50" : ""} ${rowClassName?.(row.original) ?? ""}`.trim()}
                         >
                             {row.getVisibleCells().map((cell) => {
                                 const columnId = cell.column.id
@@ -263,6 +267,7 @@ export default function SheetGrid<TData, TValue>({
                                                 accessor={accessor}
                                                 tags={tags}
                                                 buckets={buckets}
+                                                credits={credits}
                                                 value={(editedRowData as Record<string, unknown>)[accessor]}
                                                 onChange={(value) => handleFieldChange(accessor, value)}
                                                 minDate={minDate}
@@ -297,6 +302,7 @@ export default function SheetGrid<TData, TValue>({
                                         accessor={accessor}
                                         tags={tags}
                                         buckets={buckets}
+                                        credits={credits}
                                         value={(newRowData as Record<string, unknown>)[accessor] as string ?? ""}
                                         onChange={(value) =>
                                             setNewRowData((prev) => ({

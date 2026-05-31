@@ -6,6 +6,7 @@ const sheetTypeMap: Record<Sheet["sheetType"], string> = {
     "BUDGET": "Presupuesto",
     "EXPENSE_FLOW": "Flujo",
     "CREDIT": "Credito",
+    "CREDIT_FLOW": "Flujo de Credito",
 }
 
 type SheetTypeBadgeProps = {

@@ -3,6 +3,7 @@ import { PageContent } from "@/components/custom/page-content"
 import { useOneSheetQuery } from "@/queries/sheet.queries";
 import BudgetSheet from "./budgetSheet";
 import CreditSheet from "./creditSheet";
+import CreditFlowSheet from "./creditFlowSheet";
 import ExpenseFlowSheet from "./expenseFlowSheet";
 import IncomeSheet from "./incomeSheet";
 
@@ -21,6 +22,7 @@ export const SheetContent = ({ sheetId }: SheetContentProps) => {
     return <PageContent>
         {sheet.sheetType === "BUDGET" && <BudgetSheet sheetId={sheetId} />}
         {sheet.sheetType === "CREDIT" && <CreditSheet sheetId={sheetId} />}
+        {sheet.sheetType === "CREDIT_FLOW" && <CreditFlowSheet sheetId={sheetId} />}
         {sheet.sheetType === "EXPENSE_FLOW" && <ExpenseFlowSheet sheetId={sheetId} />}
         {sheet.sheetType === "INCOME" && <IncomeSheet sheetId={sheetId} />}
     </PageContent>
