@@ -25,7 +25,7 @@ export async function getPlanFlowReport(planId: string): Promise<PlanFlowReport>
     throw new Error(`Plan not found: ${planId}`);
   }
 
-  const [budgetRes, incomeRes, creditPaymentRes, creditBalanceRes, expenseFlowRecords] =
+  const [budgetRes, incomeRes, expenseFlowRecords, creditRecords, creditFlowRecords] =
     await Promise.all([
       prisma.record.aggregate({
         _sum: { amount: true },
@@ -35,27 +35,37 @@ export async function getPlanFlowReport(planId: string): Promise<PlanFlowReport>
         _sum: { amount: true },
         where: { sheet: { planId: id, sheetType: "INCOME" } },
       }),
-      prisma.record.aggregate({
-        _sum: { monthlyPayment: true, additionalPayment: true },
-        where: { sheet: { planId: id, sheetType: "CREDIT" } },
-      }),
-      prisma.record.aggregate({
-        _sum: { currentBalance: true },
-        where: { sheet: { planId: id, sheetType: "CREDIT" } },
-      }),
       prisma.record.findMany({
         where: { sheet: { planId: id, sheetType: "EXPENSE_FLOW" }, date: { not: null } },
         select: { date: true, amount: true },
+      }),
+      prisma.record.findMany({
+        where: { sheet: { planId: id, sheetType: "CREDIT" } },
+      }),
+      prisma.record.findMany({
+        where: { sheet: { planId: id, sheetType: "CREDIT_FLOW" }, date: { not: null }, creditRecordId: { not: null } },
+        select: { creditRecordId: true, date: true, amount: true },
       }),
     ]);
 
   const recurring = {
     incomeTotal: incomeRes._sum?.amount ?? 0,
     budgetTotal: budgetRes._sum?.amount ?? 0,
-    creditPaymentTotal:
-      (creditPaymentRes._sum?.monthlyPayment ?? 0) + (creditPaymentRes._sum?.additionalPayment ?? 0),
-    creditBalanceTotal: creditBalanceRes._sum?.currentBalance ?? 0,
   };
+
+  const currentMonthMs = startOfMonth(Date.now()).getTime();
+  const credits = creditRecords.map((c) => ({
+    id: c.id,
+    currentBalance: c.currentBalance ?? 0,
+    monthlyPayment: c.monthlyPayment ?? 0,
+    interestRate: c.interestRate ?? 0,
+    otherCosts: c.otherCosts ?? 0,
+    balanceDateMs: c.date != null ? Number(c.date) : currentMonthMs,
+  }));
+
+  const creditFlowPayments = creditFlowRecords
+    .filter((r) => r.creditRecordId != null && r.date != null)
+    .map((r) => ({ creditRecordId: r.creditRecordId as number, date: Number(r.date), amount: r.amount }));
 
   // Plan dates are stored as epoch SECONDS; convert to ms. Clamp the window
   // to start no earlier than the current month (forward-looking planning).
@@ -70,7 +80,7 @@ export async function getPlanFlowReport(planId: string): Promise<PlanFlowReport>
   }
   const expenseFlowByMonth = Array.from(byMonth, ([month, total]) => ({ month, total }));
 
-  return { recurring, range, expenseFlowByMonth };
+  return { recurring, range, expenseFlowByMonth, credits, creditFlowPayments };
 }
 
 /**

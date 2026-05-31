@@ -6,10 +6,9 @@ import type { MonthlyFlow } from "@/utils/flow";
 
 type MonthlySummaryCardProps = {
   flow: MonthlyFlow;
-  creditBalanceTotal: number;
 };
 
-export default function MonthlySummaryCard({ flow, creditBalanceTotal }: MonthlySummaryCardProps) {
+export default function MonthlySummaryCard({ flow }: MonthlySummaryCardProps) {
   return (
     <DataDisplay
       title="Saldo del Mes"
@@ -31,14 +30,24 @@ export default function MonthlySummaryCard({ flow, creditBalanceTotal }: Monthly
             Pagos de Crédito de {numberToCurrency(flow.creditPayment)}
           </div>
         )}
+        {flow.otherCosts > 0 && (
+          <div className="leading-none text-muted-foreground">
+            Otros Gastos de Crédito de {numberToCurrency(flow.otherCosts)}
+          </div>
+        )}
+        {flow.creditExtraPayment > 0 && (
+          <div className="leading-none text-muted-foreground">
+            Pagos Extra de Crédito de {numberToCurrency(flow.creditExtraPayment)}
+          </div>
+        )}
         {flow.expenseFlow > 0 && (
           <div className="leading-none text-muted-foreground">
             Flujo de Gastos del mes de {numberToCurrency(flow.expenseFlow)}
           </div>
         )}
-        {creditBalanceTotal > 0 && (
+        {flow.debt > 0 && (
           <div className="leading-none text-muted-foreground">
-            Deuda Total: {numberToCurrency(creditBalanceTotal)}
+            Deuda Total: {numberToCurrency(flow.debt)}
           </div>
         )}
       </div>

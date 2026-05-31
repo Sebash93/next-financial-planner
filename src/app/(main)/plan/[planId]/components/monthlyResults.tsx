@@ -9,12 +9,11 @@ import { findMonthFlow, type MonthlyFlow } from "@/utils/flow";
 type MonthlyResultsProps = {
   flows: MonthlyFlow[];
   range: { startMonth: number; endMonth: number };
-  creditBalanceTotal: number;
 };
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
-export default function MonthlyResults({ flows, range, creditBalanceTotal }: MonthlyResultsProps) {
+export default function MonthlyResults({ flows, range }: MonthlyResultsProps) {
   const initial = clamp(startOfMonth(new Date()).getTime(), range.startMonth, range.endMonth);
   const [selectedMonth, setSelectedMonth] = useState(initial);
 
@@ -35,7 +34,7 @@ export default function MonthlyResults({ flows, range, creditBalanceTotal }: Mon
           setSelectedMonth(clamp(startOfMonth(value).getTime(), range.startMonth, range.endMonth))
         }
       />
-      {flow && <MonthlySummaryCard flow={flow} creditBalanceTotal={creditBalanceTotal} />}
+      {flow && <MonthlySummaryCard flow={flow} />}
     </div>
   );
 }
